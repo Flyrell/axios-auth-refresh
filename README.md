@@ -7,12 +7,12 @@ Size: 1.25 KiB minified, 1.02 KiB gzipped
 
 ## Installation
 
-Using [npm](https://www.npmjs.com/get-npm) or [yarn](https://yarnpkg.com/en/docs/install)
+Installing using [npm](https://www.npmjs.com/get-npm) or [yarn](https://yarnpkg.com/en/docs/install)
 
-```bash 
-    npm install axios-auth-refresh
-    # or
-    yarn add axios-auth-refresh
+```bash
+npm install axios-auth-refresh
+# or
+yarn add axios-auth-refresh
 ```
 
 ## Syntax
