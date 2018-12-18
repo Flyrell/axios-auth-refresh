@@ -7,11 +7,19 @@
  * @param {Function} refreshTokenCall - refresh token call which must return a Promise
  * @return {Axios}
  */
-function createAuthRefreshInterceptor (axios, refreshTokenCall) {
+function createAuthRefreshInterceptor (axios, refreshTokenCall, retryCondition) {
     const id = axios.interceptors.response.use(res => res, error => {
 
         // Reject promise if the error status is not 401 (Unauthorized)
         if (error.response && error.response.status !== 401) {
+            return Promise.reject(error);
+        }
+
+        // Reject promise if the custom condition is not satisfied (default: always retry)
+        const retry = typeof retryCondition === 'function' 
+            ? retryCondition(error) : 
+            true;
+        if (!retry) {
             return Promise.reject(error);
         }
 
