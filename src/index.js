@@ -11,7 +11,7 @@ function createAuthRefreshInterceptor (axios, refreshTokenCall) {
     const id = axios.interceptors.response.use(res => res, error => {
 
         // Reject promise if the error status is not 401 (Unauthorized)
-        if (error.response && error.response.status !== 401) {
+        if (!error.response || (error.response && error.response.status !== 401)) {
             return Promise.reject(error);
         }
 
