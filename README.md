@@ -2,7 +2,7 @@
 Axios plugin that makes it easy to implement automatic refresh of authorization 
 via axios' [interceptors](https://github.com/axios/axios#interceptors). 
 
-Size: 1.43 KiB minified, 1.06 KiB gzipped 
+Size: 1.44 KiB minified, 1.09 KiB gzipped 
  
 
 ## Installation
