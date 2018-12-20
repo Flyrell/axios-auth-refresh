@@ -24,7 +24,7 @@ function createAuthRefreshInterceptor (axios, refreshTokenCall, options = {}) {
         const statusCodes = options.hasOwnProperty('statusCodes') && options.statusCodes.length
             ? options.statusCodes
             : defaults.statusCodes;
-        if (!error.response || (error.response && statusCodes.indexOf(error.response.status) > -1)) {
+        if (!error.response || (error.response.status && statusCodes.indexOf(+error.response.status) === -1)) {
             return Promise.reject(error);
         }
 
