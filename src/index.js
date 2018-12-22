@@ -47,7 +47,7 @@ function createAuthRefreshInterceptor (axios, refreshTokenCall, options = {}) {
         }).catch(error => {
             axios.interceptors.request.eject(requestQueueInterceptorId);
             return Promise.reject(error)
-        }).finally(() => createAuthRefreshInterceptor(axios, refreshTokenCall));
+        }).finally(() => createAuthRefreshInterceptor(axios, refreshTokenCall, options));
     });
     return axios;
 }
