@@ -4,12 +4,12 @@ via axios' [interceptors](https://github.com/axios/axios#interceptors).
 You can easily intercept the original request when it fails, refresh the authentication and continue the original request,
 without any additional user interaction.
 
-Size: 1.62 KiB minified, 1.16 KiB gzipped 
+Size: 2.32 KiB minified, 1.16 KiB gzipped 
  
 
 ## Installation
 
-Installing using [npm](https://www.npmjs.com/get-npm) or [yarn](https://yarnpkg.com/en/docs/install)
+Using [npm](https://www.npmjs.com/get-npm) or [yarn](https://yarnpkg.com/en/docs/install):
 
 ```bash
 npm install axios-auth-refresh
