@@ -1,17 +1,30 @@
+/** @type {Object} */
+const defaults = {
+
+    /** @type {Number[]} */
+    statusCodes: [
+        401 // Unauthorized
+    ]
+};
+
 /**
  * Creates an authentication refresh interceptor that binds to any error response.
  * If the response code is 401, interceptor tries to call the refreshTokenCall which must return a Promise.
  * While refreshTokenCall is running, all new requests are intercepted and waiting for it to resolve.
  * After Promise is resolved/rejected the authentication refresh interceptor is revoked.
- * @param {Axios|Function|Object} axios - axios instance
+ * @param {AxiosInstance|Function} axios - axios instance
  * @param {Function} refreshTokenCall - refresh token call which must return a Promise
- * @return {Axios}
+ * @param {Object} options - options for the interceptor @see defaultOptions
+ * @return {AxiosInstance}
  */
-function createAuthRefreshInterceptor (axios, refreshTokenCall) {
+function createAuthRefreshInterceptor (axios, refreshTokenCall, options = {}) {
     const id = axios.interceptors.response.use(res => res, error => {
 
-        // Reject promise if the error status is not 401 (Unauthorized)
-        if (!error.response || (error.response && error.response.status !== 401)) {
+        // Reject promise if the error status is not in options.ports or defaults.ports
+        const statusCodes = options.hasOwnProperty('statusCodes') && options.statusCodes.length
+            ? options.statusCodes
+            : defaults.statusCodes;
+        if (!error.response || (error.response.status && statusCodes.indexOf(+error.response.status) === -1)) {
             return Promise.reject(error);
         }
 
@@ -19,7 +32,7 @@ function createAuthRefreshInterceptor (axios, refreshTokenCall) {
         // in case token refresh also causes the 401
         axios.interceptors.response.eject(id);
 
-        const refreshCall = refreshTokenCall();
+        const refreshCall = refreshTokenCall(error);
 
         // Create interceptor that will bind all the others requests
         // until refreshTokenCall is resolved
@@ -28,16 +41,13 @@ function createAuthRefreshInterceptor (axios, refreshTokenCall) {
             .use(request => refreshCall.then(() => request));
 
         // When response code is 401 (Unauthorized), try to refresh the token.
-        return refreshCall
-            .then(() => {
-                axios.interceptors.request.eject(requestQueueInterceptorId);
-                return axios(error.response.config);
-            })
-            .catch(error => {
-                axios.interceptors.request.eject(requestQueueInterceptorId);
-                return Promise.reject(error)
-            })
-            .finally(() => createAuthRefreshInterceptor(axios, refreshTokenCall));
+        return refreshCall.then(() => {
+            axios.interceptors.request.eject(requestQueueInterceptorId);
+            return axios(error.response.config);
+        }).catch(error => {
+            axios.interceptors.request.eject(requestQueueInterceptorId);
+            return Promise.reject(error)
+        }).finally(() => createAuthRefreshInterceptor(axios, refreshTokenCall, options));
     });
     return axios;
 }
