@@ -89,3 +89,4 @@ You can specify multiple status codes that you want the interceptor to run for.
 }
 ```
 
+#### Want to help me? Check out my [Patreon page!](https://www.patreon.com/dawidzbinski)
