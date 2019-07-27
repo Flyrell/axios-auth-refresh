@@ -7,6 +7,8 @@ const defaults = {
     ]
 };
 
+const _refreshCall = null;
+
 /**
  * Creates an authentication refresh interceptor that binds to any error response.
  * If the response code is 401, interceptor tries to call the refreshTokenCall which must return a Promise.
@@ -32,7 +34,7 @@ function createAuthRefreshInterceptor (axios, refreshTokenCall, options = {}) {
         // in case token refresh also causes the 401
         axios.interceptors.response.eject(id);
 
-        const refreshCall = refreshTokenCall(error);
+        const refreshCall = _refreshCall ? _refreshCall : refreshTokenCall(error);
 
         // Create interceptor that will bind all the others requests
         // until refreshTokenCall is resolved
@@ -47,7 +49,10 @@ function createAuthRefreshInterceptor (axios, refreshTokenCall, options = {}) {
         }).catch(error => {
             axios.interceptors.request.eject(requestQueueInterceptorId);
             return Promise.reject(error)
-        }).finally(() => createAuthRefreshInterceptor(axios, refreshTokenCall, options));
+        }).finally(() => {
+            _refreshCall = null;
+            createAuthRefreshInterceptor(axios, refreshTokenCall, options)
+        });
     });
     return axios;
 }
