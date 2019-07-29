@@ -1,17 +1,23 @@
-const path = require('path');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-    mode: 'production',
+    mode: process.env.NODE_ENV,
+    devtool: "inline-source-map",
+    entry: "./src/index.ts",
+    output: {
+        filename: 'index.min.js'
+    },
+    resolve: {
+        extensions: [".ts", ".tsx", ".js"]
+    },
     module: {
         rules: [
-            { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
+            { test: /\.tsx?$/, exclude: "/node-modules/", loader: "ts-loader" }
         ]
     },
-    entry: './src/index.js',
-    output: {
-        library: 'axios-auth-refresh',
-        libraryTarget: 'commonjs-module',
-        filename: 'index.min.js',
-        path: path.resolve(__dirname, 'dist')
-    }
+    optimization: {
+        minimizer: [
+            new UglifyJsPlugin()
+        ]
+    },
 };
