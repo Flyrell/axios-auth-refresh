@@ -186,8 +186,10 @@ describe('Requests interceptor', () => {
             axios.get('http://example.com').then(() => i++);
             expect(i).toBe(0);
             i++;
+
             await sleep(100);
             expect(i).toBe(1);
+
             await sleep(500);
             expect(i).toBe(3);
         } catch (e) {
