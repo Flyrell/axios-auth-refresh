@@ -18,6 +18,7 @@ const defaults = {
  * @return {AxiosInstance}
  */
 function createAuthRefreshInterceptor (axios, refreshTokenCall, options = {}) {
+    let refreshCall = null;
     const id = axios.interceptors.response.use(res => res, error => {
 
         // Reject promise if the error status is not in options.ports or defaults.ports
@@ -28,11 +29,17 @@ function createAuthRefreshInterceptor (axios, refreshTokenCall, options = {}) {
             return Promise.reject(error);
         }
 
+        // Token is already being refreshed.
+        // Bind all this request until refreshTokenCall is resolved.
+        if (refreshCall != null) {
+            return refreshCall.then(() => axios(error.response.config));
+        }
+
         // Remove the interceptor to prevent a loop
         // in case token refresh also causes the 401
         axios.interceptors.response.eject(id);
 
-        const refreshCall = refreshTokenCall(error);
+        refreshCall = refreshTokenCall(error);
 
         // Create interceptor that will bind all the others requests
         // until refreshTokenCall is resolved
@@ -47,7 +54,10 @@ function createAuthRefreshInterceptor (axios, refreshTokenCall, options = {}) {
         }).catch(error => {
             axios.interceptors.request.eject(requestQueueInterceptorId);
             return Promise.reject(error)
-        }).finally(() => createAuthRefreshInterceptor(axios, refreshTokenCall, options));
+        }).finally(() => {
+          createAuthRefreshInterceptor(axios, refreshTokenCall, options);
+          refreshCall = null;
+        });
     });
     return axios;
 }
