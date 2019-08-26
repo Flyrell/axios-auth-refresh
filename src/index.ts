@@ -1,4 +1,4 @@
-import {AxiosInstance} from "axios";
+import {AxiosInstance, AxiosResponse} from "axios";
 import {AxiosAuthRefreshOptions, AxiosAuthRefreshCache} from "./types";
 
 /** @type {AxiosAuthRefreshOptions} */
@@ -22,12 +22,12 @@ const cache: AxiosAuthRefreshCache = {
  * @param {AxiosAuthRefreshOptions} options - options for the interceptor @see defaultOptions
  * @return {AxiosInstance}
  */
-function createAuthRefreshInterceptor (
+function createAuthRefreshInterceptor(
     axios: AxiosInstance,
     refreshTokenCall: (error: any) => Promise<any>,
     options: AxiosAuthRefreshOptions = {}
 ) {
-    const id = axios.interceptors.response.use(res => res, error => {
+    const id = axios.interceptors.response.use((res: AxiosResponse) => res, (error: any) => {
 
         if (typeof refreshTokenCall !== 'function') {
             console.warn('axios-auth-refresh requires `refreshTokenCall` to be a function that returns a promise.');
@@ -70,11 +70,11 @@ function createAuthRefreshInterceptor (
 /**
  * Merges two config objects (master rewrites slave)
  * @param {AxiosAuthRefreshOptions} master
- * @param {AxiosAuthRefreshOptions} slave
+ * @param {AxiosAuthRefreshOptions} def
  * @return {AxiosAuthRefreshOptions}
  */
-export function mergeConfigs (master: AxiosAuthRefreshOptions, slave: AxiosAuthRefreshOptions) {
-    return { ...slave, ...master };
+export function mergeConfigs(master: AxiosAuthRefreshOptions, def: AxiosAuthRefreshOptions): AxiosAuthRefreshOptions {
+    return { ...def, ...master };
 }
 
 /**
@@ -84,7 +84,7 @@ export function mergeConfigs (master: AxiosAuthRefreshOptions, slave: AxiosAuthR
  * @param {AxiosAuthRefreshOptions} options
  * @return {boolean}
  */
-export function shouldInterceptError (error: any, options: AxiosAuthRefreshOptions) {
+export function shouldInterceptError(error: any, options: AxiosAuthRefreshOptions): boolean {
     return error && error.response && options.statusCodes.includes(+error.response.status);
 }
 
@@ -95,7 +95,11 @@ export function shouldInterceptError (error: any, options: AxiosAuthRefreshOptio
  * @param {AxiosAuthRefreshCache} cache
  * @return {Promise<any>}
  */
-export function createRefreshCall (error: any, fn: (error: any) => Promise<any>, cache: AxiosAuthRefreshCache) {
+export function createRefreshCall(
+    error: any,
+    fn: (error: any) => Promise<any>,
+    cache: AxiosAuthRefreshCache
+): Promise<any> {
     if (!cache.refreshCall) {
         cache.refreshCall = fn(error);
         if (typeof cache.refreshCall.then !== 'function') {
@@ -112,10 +116,12 @@ export function createRefreshCall (error: any, fn: (error: any) => Promise<any>,
  * @param {AxiosAuthRefreshCache} cache
  * @return {number}
  */
-export function createRequestQueueInterceptor (axios, cache: AxiosAuthRefreshCache) {
+export function createRequestQueueInterceptor(axios: AxiosInstance, cache: AxiosAuthRefreshCache): number {
     if (typeof cache.requestQueueInterceptorId === 'undefined') {
-        cache.requestQueueInterceptorId = axios.interceptors
-            .request.use((request) => cache.refreshCall.then(() => request));
+        cache.requestQueueInterceptorId = axios
+            .interceptors
+            .request
+            .use((request) => cache.refreshCall.then(() => request));
     }
     return cache.requestQueueInterceptorId;
 }

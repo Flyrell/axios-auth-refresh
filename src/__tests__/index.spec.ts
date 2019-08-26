@@ -179,22 +179,16 @@ describe('Requests interceptor', () => {
 
     it('intercepts the requests', async () => {
         try {
-            createRefreshCall({}, () => sleep(500), cache);
+            let refreshed = 0;
             createRequestQueueInterceptor(axios, cache);
-            let i = 0;
-            axios.get('http://example.com').then(() => i++);
-            axios.get('http://example.com').then(() => i++);
-            expect(i).toBe(0);
-            i++;
-
-            await sleep(100);
-            expect(i).toBe(1);
-
-            await sleep(500);
-            expect(i).toBe(3);
+            createRefreshCall({}, async () => {
+                await sleep(400);
+                ++refreshed;
+            }, cache);
+            await axios.get('http://example.com').then(() => expect(refreshed).toBe(1));
+            await axios.get('http://example.com').then(() => expect(refreshed).toBe(1));
         } catch (e) {
-            console.log(e);
-            expect(true).toBe(false);
+            expect(e).toBeFalsy();
         }
     });
 });
