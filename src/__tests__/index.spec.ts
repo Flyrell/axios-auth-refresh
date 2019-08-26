@@ -1,4 +1,4 @@
-import axios, {AxiosPromise, AxiosRequestConfig} from 'axios';
+import axios, {AxiosInstance} from 'axios';
 import {AxiosAuthRefreshCache, AxiosAuthRefreshOptions} from "../types";
 import {
     mergeConfigs,
@@ -9,10 +9,11 @@ import {
 
 const bag = {
     request: [],
-    response: []
+    response: [],
+    has: jest.fn((type: 'request'|'response', i: number) => bag[type].includes(i))
 };
 
-const mockedAxios = {
+const mockedAxios: AxiosInstance | any = {
     get: jest.fn((result: any) => result ? Promise.resolve(result) : Promise.reject(result)),
     interceptors: {
         request: {
@@ -21,10 +22,9 @@ const mockedAxios = {
                 bag.request.push(i);
                 return i;
             }),
-            reject: jest.fn((i) => {
+            eject: jest.fn((i) => {
                 bag.request = bag.request.filter(n => n !== i);
-            }),
-            has: jest.fn((i) => bag.request.includes(i))
+            })
         },
         response: {
             use: jest.fn(() => {
@@ -32,10 +32,9 @@ const mockedAxios = {
                 bag.response.push(i);
                 return i;
             }),
-            reject: jest.fn((i) => {
+            eject: jest.fn((i) => {
                 bag.response = bag.response.filter(n => n !== i);
-            }),
-            has: jest.fn((i) => bag.response.includes(i))
+            })
         }
     }
 };
@@ -167,7 +166,7 @@ describe('Requests interceptor', () => {
     it('is created', () => {
         createRefreshCall({}, () => Promise.resolve(), cache);
         const result1 = createRequestQueueInterceptor(mockedAxios, cache);
-        expect((<any> mockedAxios.interceptors).request.has(result1)).toBeTruthy();
+        expect(bag.has('request', result1)).toBeTruthy();
     });
 
     it('is created only once', () => {
