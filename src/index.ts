@@ -1,9 +1,10 @@
-import {AxiosInstance, AxiosResponse} from "axios";
+import {AxiosInstance, AxiosResponse, AxiosStatic} from "axios";
 
 // Types
 
 export interface AxiosAuthRefreshOptions {
-    statusCodes?: Array<number>
+    instance?: AxiosInstance;
+    statusCodes?: Array<number>;
 }
 
 export interface AxiosAuthRefreshCache {
@@ -14,7 +15,8 @@ export interface AxiosAuthRefreshCache {
 // Constants
 
 const defaults: AxiosAuthRefreshOptions = {
-    statusCodes: [ 401 ]
+    statusCodes: [ 401 ],
+    instance: undefined
 };
 
 const cache: AxiosAuthRefreshCache = {
@@ -27,13 +29,13 @@ const cache: AxiosAuthRefreshCache = {
  * If the response code is 401, interceptor tries to call the refreshTokenCall which must return a Promise.
  * While refreshTokenCall is running, all new requests are intercepted and waiting for it to resolve.
  * After Promise is resolved/rejected the authentication refresh interceptor is revoked.
- * @param {AxiosInstance} axios - axios instance
+ * @param {AxiosStatic} axios - axios static object
  * @param {(error: any) => Promise<AxiosPromise>} refreshTokenCall - refresh token call which must return a Promise
  * @param {AxiosAuthRefreshOptions} options - options for the interceptor @see defaultOptions
  * @return {number} - interceptor id (in case you want to eject it manually)
  */
 export default function createAuthRefreshInterceptor(
-    axios: AxiosInstance,
+    axios: AxiosStatic,
     refreshTokenCall: (error: any) => Promise<any>,
     options: AxiosAuthRefreshOptions = {}
 ): number {
@@ -41,7 +43,10 @@ export default function createAuthRefreshInterceptor(
         throw new Error('axios-auth-refresh requires `refreshTokenCall` to be a function that returns a promise.');
     }
 
-    const id = axios.interceptors.response.use((res: AxiosResponse) => res, (error: any) => {
+    // Get the instance of axios
+    const axiosInstance = options.instance || axios;
+
+    const id = axiosInstance.interceptors.response.use((res: AxiosResponse) => res, (error: any) => {
 
         // Rewrite default config
         options = mergeConfigs(options, defaults);
@@ -52,7 +57,7 @@ export default function createAuthRefreshInterceptor(
         }
 
         // Remove the interceptor to prevent a loop in case token refresh also causes the 401
-        axios.interceptors.response.eject(id);
+        axiosInstance.interceptors.response.eject(id);
 
         // If refresh call does not exist, create one
         const refreshing = createRefreshCall(error, refreshTokenCall, cache);
@@ -62,10 +67,10 @@ export default function createAuthRefreshInterceptor(
 
         // When response code is 401 (Unauthorized), try to refresh the token.
         return refreshing.then(() => {
-            axios.interceptors.request.eject(cache.requestQueueInterceptorId);
+            axiosInstance.interceptors.request.eject(cache.requestQueueInterceptorId);
             return axios(error.response.config);
         }).catch(error => {
-            axios.interceptors.request.eject(cache.requestQueueInterceptorId);
+            axiosInstance.interceptors.request.eject(cache.requestQueueInterceptorId);
             return Promise.reject(error);
         }).finally(() => {
             cache.refreshCall = undefined;
@@ -113,12 +118,16 @@ export function createRefreshCall(
 /**
  * Creates refresh call if it does not exist or returns the existing one
  */
-export function createRequestQueueInterceptor(axios: AxiosInstance, cache: AxiosAuthRefreshCache): number {
+export function createRequestQueueInterceptor(axios: AxiosStatic, cache: AxiosAuthRefreshCache): number {
     if (typeof cache.requestQueueInterceptorId === 'undefined') {
         cache.requestQueueInterceptorId = axios
             .interceptors
             .request
-            .use((request) => cache.refreshCall.then(() => request));
+            .use((request) => cache.refreshCall
+                .then(() => request)
+                .catch(() => {
+                    throw new axios.Cancel('Refresh call failed')
+                }));
     }
     return cache.requestQueueInterceptorId;
 }

@@ -29,14 +29,14 @@ yarn add axios-auth-refresh
 
 ```typescript
 createAuthRefreshInterceptor(
-    axios: AxiosInstance,
+    axios: AxiosStatic,
     refreshAuthLogic: (failedRequest: any) => Promise<any>,
     options?: AxiosAuthRefreshOptions = {}
 ): number;
 ```
 
 #### Parameters
-- `axios` - an instance of Axios used in project/call
+- `axios` - an static object of Axios (you can pass specific instance of axios in options)
 - `refreshAuthLogic` - a Function used for refreshing authorization (**must return a promise**).
 Accepts exactly one parameter, which is the `failedRequest` returned by the original call.
 - `options` - object with settings for interceptor (See [available options](#available-options))
@@ -91,15 +91,25 @@ axios.interceptors.request.use(request => {
 
 ## Available options
 
-All values below are set by default.
-
 #### Status codes to intercept 
 
 You can specify multiple status codes that you want the interceptor to run for.
 
 ```javascript
 {
-    statusCodes: [ 401 ]
+    statusCodes: [ 401 ] // default
+}
+```
+
+#### Instance of axios to use
+
+Unfortunately, we need an access to `Axios.Cancel` constructor when we cancel the requests after
+unsuccessful refresh attempt which requires you to use the static axios object to create an interceptor.
+If you want to bind the interceptor to a specific instance only, you can do that by passing it as an instance property of options.
+
+```javascript
+{
+    instance: yourAxiosIntance // default: undefined
 }
 ```
 

@@ -8,36 +8,38 @@ import createAuthRefreshInterceptor, {
     AxiosAuthRefreshCache
 } from "../index";
 
-const bag = {
-    request: [],
-    response: [],
-    has: jest.fn((type: 'request'|'response', i: number) => bag[type].includes(i))
-};
-
-const mockedAxios: AxiosInstance | any = {
-    get: jest.fn((result: any) => result ? Promise.resolve(result) : Promise.reject(result)),
-    interceptors: {
-        request: {
-            use: jest.fn(() => {
-                const i = Math.random();
-                bag.request.push(i);
-                return i;
-            }),
-            eject: jest.fn((i) => {
-                bag.request = bag.request.filter(n => n !== i);
-            })
+const mockedAxios: () => AxiosInstance | any = () => {
+    const bag = {
+        request: [],
+        response: [],
+        has: jest.fn((type: 'request'|'response', id: number) => bag[type].includes(id))
+    };
+    return {
+        get: jest.fn((result: any) => result ? Promise.resolve(result) : Promise.reject(result)),
+        interceptors: {
+            request: {
+                use: jest.fn(() => {
+                    const i = Math.random();
+                    bag.request.push(i);
+                    return i;
+                }),
+                eject: jest.fn((i) => {
+                    bag.request = bag.request.filter(n => n !== i);
+                })
+            },
+            response: {
+                use: jest.fn(() => {
+                    const i = Math.random();
+                    bag.response.push(i);
+                    return i;
+                }),
+                eject: jest.fn((i) => {
+                    bag.response = bag.response.filter(n => n !== i);
+                })
+            }
         },
-        response: {
-            use: jest.fn(() => {
-                const i = Math.random();
-                bag.response.push(i);
-                return i;
-            }),
-            eject: jest.fn((i) => {
-                bag.response = bag.response.filter(n => n !== i);
-            })
-        }
-    }
+        has: bag.has
+    };
 };
 
 const sleep = (ms) => {
@@ -161,9 +163,10 @@ describe('Requests interceptor', () => {
     });
 
     it('is created', () => {
+        const mock = mockedAxios();
         createRefreshCall({}, () => Promise.resolve(), cache);
-        const result1 = createRequestQueueInterceptor(mockedAxios, cache);
-        expect(bag.has('request', result1)).toBeTruthy();
+        const result1 = createRequestQueueInterceptor(mock, cache);
+        expect(mock.has('request', result1)).toBeTruthy();
     });
 
     it('is created only once', () => {
@@ -187,6 +190,27 @@ describe('Requests interceptor', () => {
             expect(e).toBeFalsy();
         }
     });
+
+    it('cancels all requests when refreshing call failed', async () => {
+        try {
+            let passed = 0, caught = 0;
+            createRequestQueueInterceptor(axios, cache);
+            createRefreshCall({}, async () => {
+                await sleep(500);
+                return Promise.reject();
+            }, cache);
+            await axios.get('http://example.com')
+                .then(() => ++passed)
+                .catch(() => ++caught);
+            await axios.get('http://example.com')
+                .then(() => ++passed)
+                .catch(() => ++caught);
+            expect(passed).toBe(0);
+            expect(caught).toBe(2);
+        } catch (e) {
+            expect(e).toBeFalsy();
+        }
+    });
 });
 
 describe('Creates the overall interceptor correctly', () => {
@@ -201,4 +225,14 @@ describe('Creates the overall interceptor correctly', () => {
         expect(id).toBeGreaterThan(-1);
     });
 
+    it('uses axios instance provided in options', () => {
+        const instanceWithInterceptor = mockedAxios();
+        const instanceWithoutInterceptor = mockedAxios();
+        const id = createAuthRefreshInterceptor(axios, async () => {
+            await sleep(400);
+            return Promise.resolve();
+        }, { instance: instanceWithInterceptor });
+        expect(instanceWithInterceptor.has('response', id)).toBeTruthy();
+        expect(instanceWithoutInterceptor.has('response', id)).toBeFalsy();
+    });
 });
