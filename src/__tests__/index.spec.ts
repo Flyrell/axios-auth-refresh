@@ -5,7 +5,7 @@ import {
     shouldInterceptError,
     createRefreshCall,
     createRequestQueueInterceptor
-} from "../index";
+} from "../helpers";
 
 const bag = {
     request: [],

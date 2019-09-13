@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - "stable"
+cache:
+  directories:
+    - node_modules
+
+script:
+  - "npm test"
+  - "npm run build"
+
+deploy:
+  provider: npm
+  email: dawid@zbinski.dev
+  api_key:
+    secure: Mg/InE/zKE/uDDIAiGFDVjaOK4xi2dO55CLYFDs1qP6gcBcPO0wtwwqjJhm1AEOuDsQ5r5MhBWCmBnHmBzBHIVz05m9q+++oAE6Adg19xnganSHv3v0Zg4IfvccX3F7fD9qL/WSJ9mMv+eJeupr4mpSZUvesdSufS6PK/FZOpIRLoGQJVruvLMcCKvPEg0VQvi8miR9RFJmfJ4G8+Nr0VLCbHx+OM1Bm1I88+2Snojvy8kUKQ/g0Y8hSWxqDQ0H2GXyJl9OU5RjDv1DHJfOrhwCRj2wn9Kkc5+4pwbqOxAWp8b8vTqINGiOqbFcYWBW/C+vvZphFt7HD8dq3AN7oyrv1EBTGwh2xqiQgOYv9AhLkhO+eBnuX7xrlkTlC756ljtqQ+ILRo6TfkQC50W7b6Og0BHv940wID1tuY6vqjrdXaJD8QDYob8+7ROhNSPXAXqeWfd7Q3zqRLQ3epwMMgSRDxV57IFcDuIuqqw25oKHTT6N17epEzeJR5HpM9JjViqcNcpo+jdbH68fJhbym6/DS3/W3TvagEty7XRzbqTFbFykhbUyN++GZ1kWI4AqjM14A3JNmafi45vN2kSQql+LJqmymsH43BUPhsRDpuQf8QBwze9QAgKLFFvEr1TI90ru+2XBhvqW3qQfHvUJ67JMSQn6GZjfbwS+mwUF9avI=
+  on:
+    tags: true
+    repo: Flyrell/axios-auth-refresh

@@ -6,7 +6,9 @@ module.exports = {
     devtool: "inline-source-map",
     entry: "./src/index.ts",
     output: {
-        filename: 'index.min.js'
+        filename: 'index.min.js',
+        library: 'axios-auth-refresh',
+        libraryTarget: 'commonjs2'
     },
     resolve: {
         extensions: [".ts", ".tsx", ".js"]
