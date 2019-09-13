@@ -1,5 +1,11 @@
 import { AxiosInstance } from "axios";
-import { AxiosAuthRefreshOptions } from "./types";
+export interface AxiosAuthRefreshOptions {
+    statusCodes?: Array<number>;
+}
+export interface AxiosAuthRefreshCache {
+    refreshCall: Promise<any> | undefined;
+    requestQueueInterceptorId: number | undefined;
+}
 /**
  * Creates an authentication refresh interceptor that binds to any error response.
  * If the response code is 401, interceptor tries to call the refreshTokenCall which must return a Promise.
@@ -10,5 +16,21 @@ import { AxiosAuthRefreshOptions } from "./types";
  * @param {AxiosAuthRefreshOptions} options - options for the interceptor @see defaultOptions
  * @return {AxiosInstance}
  */
-declare function createAuthRefreshInterceptor(axios: AxiosInstance, refreshTokenCall: (error: any) => Promise<any>, options?: AxiosAuthRefreshOptions): AxiosInstance;
-export default createAuthRefreshInterceptor;
+export default function createAuthRefreshInterceptor(axios: AxiosInstance, refreshTokenCall: (error: any) => Promise<any>, options?: AxiosAuthRefreshOptions): AxiosInstance;
+/**
+ * Merges two config objects (master rewrites slave)
+ */
+export declare function mergeConfigs(master: AxiosAuthRefreshOptions, def: AxiosAuthRefreshOptions): AxiosAuthRefreshOptions;
+/**
+ * Returns TRUE: when error.response.status is contained in options.statusCodes
+ * Returns FALSE: when error or error.response doesn't exist or options.statusCodes doesn't include response status
+ */
+export declare function shouldInterceptError(error: any, options: AxiosAuthRefreshOptions): boolean;
+/**
+ * Creates refresh call if it does not exist or returns the existing one
+ */
+export declare function createRefreshCall(error: any, fn: (error: any) => Promise<any>, cache: AxiosAuthRefreshCache): Promise<any>;
+/**
+ * Creates refresh call if it does not exist or returns the existing one
+ */
+export declare function createRequestQueueInterceptor(axios: AxiosInstance, cache: AxiosAuthRefreshCache): number;

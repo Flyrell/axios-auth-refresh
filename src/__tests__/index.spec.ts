@@ -1,11 +1,12 @@
 import axios, {AxiosInstance} from 'axios';
-import {AxiosAuthRefreshCache, AxiosAuthRefreshOptions} from "../types";
-import {
+import createAuthRefreshInterceptor, {
     mergeConfigs,
     shouldInterceptError,
     createRefreshCall,
-    createRequestQueueInterceptor
-} from "../helpers";
+    createRequestQueueInterceptor,
+    AxiosAuthRefreshOptions,
+    AxiosAuthRefreshCache
+} from "../index";
 
 const bag = {
     request: [],
@@ -48,11 +49,7 @@ const sleep = (ms) => {
     });
 };
 
-
-
-
-
-describe('Config merge', () => {
+describe('Merges configs', () => {
 
     it('master and slave are the same', () => {
         const master: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
@@ -73,31 +70,31 @@ describe('Config merge', () => {
     });
 });
 
-describe('Intercepts requests', () => {
+describe('Determines if the response should be intercepted', () => {
 
     const options = { statusCodes: [ 401 ] };
 
-    it('has no error object', () => {
+    it('no error object provided', () => {
         expect(shouldInterceptError(undefined, options)).toBeFalsy();
     });
 
-    it('has no response inside error object', () => {
+    it('no response inside error object', () => {
         expect(shouldInterceptError({}, options)).toBeFalsy();
     });
 
-    it('has no status in error.response object', () => {
+    it('no status in error.response object', () => {
         expect(shouldInterceptError({ response: {} }, options)).toBeFalsy();
     });
 
-    it('does not include the response status', () => {
+    it('error does not include the response status', () => {
         expect(shouldInterceptError({ response: { status: 403 } }, options)).toBeFalsy();
     });
 
-    it('does include the response status', () => {
+    it('error includes the response status', () => {
         expect(shouldInterceptError({ response: { status: 401 } }, options)).toBeTruthy();
     });
 
-    it('has response status specified as a string', () => {
+    it('error has response status specified as a string', () => {
         expect(shouldInterceptError({ response: { status: '401' } }, options)).toBeTruthy();
     });
 });
@@ -112,20 +109,20 @@ describe('Creates refresh call', () => {
         };
     });
 
-    it('warns if refreshTokenCall does not return promise', async () => {
+    it('warns if refreshTokenCall does not return a promise', async () => {
 
         // Just so we don't trigger the console.warn (looks better in terminal)
-        const warn = console.warn;
+        const tmp = console.warn;
         const mocked = jest.fn();
         console.warn = mocked;
 
         try {
-            await createRefreshCall({}, () => <any> false, cache);
+            await createRefreshCall({}, () => Promise.resolve(), cache);
         } catch (e) {
             expect(mocked).toBeCalled();
         }
 
-        console.warn = warn;
+        console.warn = tmp;
     });
 
     it('creates refreshTokenCall and correctly resolves', async () => {
@@ -190,4 +187,12 @@ describe('Requests interceptor', () => {
             expect(e).toBeFalsy();
         }
     });
+});
+
+describe('Creates the overall interceptor correctly', () => {
+
+    it('throws error when no function provided', () => {
+        expect(() => createAuthRefreshInterceptor(axios, null)).toThrow();
+    });
+
 });
