@@ -1,3 +1,8 @@
+![Package version](https://img.shields.io/npm/v/axios-auth-refresh?label=version)
+![Package size](https://img.shields.io/bundlephobia/min/axios-auth-refresh)
+![Package downloads](https://img.shields.io/npm/dm/axios-auth-refresh)
+![Package types definitions](https://img.shields.io/npm/types/axios-auth-refresh)
+
 # axios-auth-refresh
 Axios plugin that makes it easy to implement automatic refresh of authorization tokens
 via axios' [interceptors](https://github.com/axios/axios#interceptors).
