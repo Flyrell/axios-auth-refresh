@@ -15,7 +15,6 @@ const mockedAxios: () => AxiosInstance | any = () => {
         has: jest.fn((type: 'request'|'response', id: number) => bag[type].includes(id))
     };
     return {
-        get: jest.fn((result: any) => result ? Promise.resolve(result) : Promise.reject(result)),
         interceptors: {
             request: {
                 use: jest.fn(() => {
@@ -72,6 +71,19 @@ describe('Merges configs', () => {
     });
 });
 
+describe('Uses options correctly', () => {
+
+    it('uses only the axios instance provided in options', () => {
+        const instanceWithInterceptor = mockedAxios();
+        const instanceWithoutInterceptor = mockedAxios();
+        const id = createAuthRefreshInterceptor(axios, () => Promise.resolve(), {
+            instance: instanceWithInterceptor
+        });
+        expect(instanceWithInterceptor.has('response', id)).toBeTruthy();
+        expect(instanceWithoutInterceptor.has('response', id)).toBeFalsy();
+    });
+});
+
 describe('Determines if the response should be intercepted', () => {
 
     const options = { statusCodes: [ 401 ] };
@@ -98,6 +110,22 @@ describe('Determines if the response should be intercepted', () => {
 
     it('error has response status specified as a string', () => {
         expect(shouldInterceptError({ response: { status: '401' } }, options)).toBeTruthy();
+    });
+
+    it('when skipAuthRefresh flag is set ot true', () => {
+        const error = {
+            response: { status: 401 },
+            config: { skipAuthRefresh: true }
+        };
+        expect(shouldInterceptError(error, options)).toBeFalsy();
+    });
+
+    it('when skipAuthRefresh flag is set to false', () => {
+        const error = {
+            response: { status: 401 },
+            config: { skipAuthRefresh: false }
+        };
+        expect(shouldInterceptError(error, options)).toBeTruthy();
     });
 });
 
@@ -223,16 +251,5 @@ describe('Creates the overall interceptor correctly', () => {
         const id = createAuthRefreshInterceptor(axios, () => Promise.resolve());
         expect(typeof id).toBe('number');
         expect(id).toBeGreaterThan(-1);
-    });
-
-    it('uses axios instance provided in options', () => {
-        const instanceWithInterceptor = mockedAxios();
-        const instanceWithoutInterceptor = mockedAxios();
-        const id = createAuthRefreshInterceptor(axios, async () => {
-            await sleep(400);
-            return Promise.resolve();
-        }, { instance: instanceWithInterceptor });
-        expect(instanceWithInterceptor.has('response', id)).toBeTruthy();
-        expect(instanceWithoutInterceptor.has('response', id)).toBeFalsy();
     });
 });

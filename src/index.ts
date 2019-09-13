@@ -1,4 +1,4 @@
-import {AxiosInstance, AxiosResponse, AxiosStatic} from "axios";
+import {AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosStatic} from "axios";
 
 // Types
 
@@ -10,6 +10,10 @@ export interface AxiosAuthRefreshOptions {
 export interface AxiosAuthRefreshCache {
     refreshCall: Promise<any>|undefined,
     requestQueueInterceptorId: number|undefined
+}
+
+export interface AxiosAuthRefreshRequestConfig extends AxiosRequestConfig {
+    skipAuthRefresh?: boolean
 }
 
 // Constants
@@ -94,7 +98,9 @@ export function mergeConfigs(master: AxiosAuthRefreshOptions, def: AxiosAuthRefr
  * Returns FALSE: when error or error.response doesn't exist or options.statusCodes doesn't include response status
  */
 export function shouldInterceptError(error: any, options: AxiosAuthRefreshOptions): boolean {
-    return error && error.response && options.statusCodes.includes(+error.response.status);
+    return error
+        && !(error.config && error.config.skipAuthRefresh)
+        && error.response && options.statusCodes.includes(+error.response.status);
 }
 
 /**

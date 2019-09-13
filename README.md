@@ -75,16 +75,33 @@ axios.get('https://www.example.com/restricted/area')
     .catch(/* ... */);
 ```
 
-#### Request interceptor
-Since this plugin automatically stalls additional requests while refreshing the token, it is a good idea to **wrap your token logic interceptor in a function**, 
-to make sure the stalled requests are using the newly fetched token.
+#### Skipping the interceptor (BETA)
+There's a possibility to skip the logic of the interceptor for specific calls.
+To do this, you need to pass the `skipAuthRefresh` option to the request config for each request you don't want to intercept.
 ```javascript
+axios.get('https://www.example.com/', { skipAuthRefresh: true });
+```
+
+If you're using typescript you can import the custom request config interface from `axios-auth-refresh`.
+```typescript
+import { AxiosAuthRefreshRequestConfig } from 'axios-auth-refresh';
+```
+
+#### Request interceptor
+Since this plugin automatically stalls additional requests while refreshing the token,
+it is a good idea to **wrap your request logic in a function**, 
+to make sure the stalled requests are using the newly fetched data (like token).
+
+Example of sending the tokens:
+```javascript
+// Obtain the fresh token each time the function is called
 function getAccessToken(){
     return localStorage.getItem('token');
 }
 
+// Use interceptor to inject the token to requests
 axios.interceptors.request.use(request => {
-    request.headers['Authorization'] = getAccessToken();
+    request.headers['Authorization'] = `Bearer ${getAccessToken()}`;
     return request;
 });
 ```
