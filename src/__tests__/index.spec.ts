@@ -195,4 +195,10 @@ describe('Creates the overall interceptor correctly', () => {
         expect(() => createAuthRefreshInterceptor(axios, null)).toThrow();
     });
 
+    it('returns interceptor id', () => {
+        const id = createAuthRefreshInterceptor(axios, () => Promise.resolve());
+        expect(typeof id).toBe('number');
+        expect(id).toBeGreaterThan(-1);
+    });
+
 });

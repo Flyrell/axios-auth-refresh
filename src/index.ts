@@ -30,13 +30,13 @@ const cache: AxiosAuthRefreshCache = {
  * @param {AxiosInstance} axios - axios instance
  * @param {(error: any) => Promise<AxiosPromise>} refreshTokenCall - refresh token call which must return a Promise
  * @param {AxiosAuthRefreshOptions} options - options for the interceptor @see defaultOptions
- * @return {AxiosInstance}
+ * @return {number} - interceptor id (in case you want to eject it manually)
  */
 export default function createAuthRefreshInterceptor(
     axios: AxiosInstance,
     refreshTokenCall: (error: any) => Promise<any>,
     options: AxiosAuthRefreshOptions = {}
-) {
+): number {
     if (typeof refreshTokenCall !== 'function') {
         throw new Error('axios-auth-refresh requires `refreshTokenCall` to be a function that returns a promise.');
     }
@@ -73,7 +73,8 @@ export default function createAuthRefreshInterceptor(
             createAuthRefreshInterceptor(axios, refreshTokenCall, options)
         });
     });
-    return axios;
+
+    return id;
 }
 
 /**
