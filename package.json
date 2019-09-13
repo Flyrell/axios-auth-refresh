@@ -17,9 +17,10 @@
     "license": "MIT",
     "private": false,
     "scripts": {
-        "build": "webpack",
+        "dev": "webpack --mode development",
+        "build": "webpack --mode production",
         "test": "jest",
-        "test-cover": "jest --coverage"
+        "test-coverage": "jest --coverage"
     },
     "dependencies": {
         "axios": "^0.18.0"
