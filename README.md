@@ -4,13 +4,13 @@
 ![Package types definitions](https://img.shields.io/npm/types/axios-auth-refresh)
 
 # axios-auth-refresh
-Library that makes it easy to implement automatic refresh of authorization tokens
+Library that helps you implement automatic refresh of authorization
 via axios [interceptors](https://github.com/axios/axios#interceptors).
 You can easily intercept the original request when it fails, refresh the authorization and continue with the original request,
 without any user interaction.
 
-What happens when the request fails is all up to you.
-You can either run a refresh call for a new authorization token or run some custom logic of your business. 
+What happens when the request fails dur to authorization is all up to you.
+You can either run a refresh call for a new authorization token or run a custom logic. 
 
 The plugin stalls additional requests that have come in while waiting for a new authorization token
 and resolves them when a new token is available.
@@ -127,6 +127,20 @@ If you want to bind the interceptor to a specific instance only, you can do that
 ```javascript
 {
     instance: yourAxiosIntance // default: undefined
+}
+```
+
+#### Unpause the instance while refreshing
+
+While your refresh logic is ran, the instance is marked as "to-be-skipped"
+in order to prevent the "interceptors loop" when refreshing causes one of the statuses specified
+in `options.statusCodes`. If that's behavior is not wanted, you can set the `skipWhileRefreshing` option to false,
+but keep in mind that you need to implement skipping the requests by yourself using `skipAuthRefresh` flag
+in request's configuration
+
+```javascript
+{
+    skipWhileRefreshing: false // default: true
 }
 ```
 

@@ -5,9 +5,11 @@ import {AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosStatic} from "axi
 export interface AxiosAuthRefreshOptions {
     instance?: AxiosInstance;
     statusCodes?: Array<number>;
+    skipWhileRefreshing?: boolean;
 }
 
 export interface AxiosAuthRefreshCache {
+    skipInstances: AxiosInstance[],
     refreshCall: Promise<any>|undefined,
     requestQueueInterceptorId: number|undefined
 }
@@ -20,31 +22,37 @@ export interface AxiosAuthRefreshRequestConfig extends AxiosRequestConfig {
 
 const defaults: AxiosAuthRefreshOptions = {
     statusCodes: [ 401 ],
-    instance: undefined
+    instance: undefined,
+    skipWhileRefreshing: true
 };
 
 const cache: AxiosAuthRefreshCache = {
+    skipInstances: [],
     refreshCall: undefined,
     requestQueueInterceptorId: undefined
 };
 
 /**
  * Creates an authentication refresh interceptor that binds to any error response.
- * If the response code is 401, interceptor tries to call the refreshTokenCall which must return a Promise.
- * While refreshTokenCall is running, all new requests are intercepted and waiting for it to resolve.
- * After Promise is resolved/rejected the authentication refresh interceptor is revoked.
+ * If the response status code is one of the options.statusCodes, interceptor calls the refreshAuthCall
+ * which must return a Promise. While refreshAuthCall is running, all the new requests are intercepted and are waiting
+ * for the refresh call to resolve. While running the refreshing call, instance provided is marked as a paused instance
+ * which indicates the interceptor to not intercept any responses from it. This is because you'd otherwise need to mark
+ * the specific requests you make by yourself in order to make sure it's not intercepted. This behavior can be
+ * turned off, but use it with caution as you need to mark the requests with `skipAuthRefresh` flag yourself in order to
+ * not run into interceptors loop
  * @param {AxiosStatic} axios - axios static object
- * @param {(error: any) => Promise<AxiosPromise>} refreshTokenCall - refresh token call which must return a Promise
+ * @param {(error: any) => Promise<AxiosPromise>} refreshAuthCall - refresh token call which must return a Promise
  * @param {AxiosAuthRefreshOptions} options - options for the interceptor @see defaultOptions
  * @return {number} - interceptor id (in case you want to eject it manually)
  */
 export default function createAuthRefreshInterceptor(
     axios: AxiosStatic,
-    refreshTokenCall: (error: any) => Promise<any>,
+    refreshAuthCall: (error: any) => Promise<any>,
     options: AxiosAuthRefreshOptions = {}
 ): number {
-    if (typeof refreshTokenCall !== 'function') {
-        throw new Error('axios-auth-refresh requires `refreshTokenCall` to be a function that returns a promise.');
+    if (typeof refreshAuthCall !== 'function') {
+        throw new Error('axios-auth-refresh requires `refreshAuthCall` to be a function that returns a promise.');
     }
 
     // Get the instance of axios
@@ -56,25 +64,22 @@ export default function createAuthRefreshInterceptor(
         options = mergeConfigs(options, defaults);
 
         // Reject promise if the error status is not in options.ports
-        if (!shouldInterceptError(error, options, axiosInstance)) {
+        if (!shouldInterceptError(error, options, axiosInstance, cache)) {
             return Promise.reject(error);
         }
 
         // If refresh call does not exist, create one
-        if (!axiosInstance.defaults.params) {
-            axiosInstance.defaults.params = {};
-        }
-        axiosInstance.defaults.params.refreshing = true;
-        const refreshing = createRefreshCall(error, refreshTokenCall, cache);
+        cache.skipInstances.push(axiosInstance);
+        const refreshing = createRefreshCall(error, refreshAuthCall, cache);
 
-        // Create interceptor that will bind all the others requests until refreshTokenCall is resolved
+        // Create interceptor that will bind all the others requests until refreshAuthCall is resolved
         createRequestQueueInterceptor(axios, axiosInstance, cache);
 
         return refreshing
             .finally(() => {
                 cache.refreshCall = undefined;
-                axiosInstance.defaults.params.refreshing = undefined;
                 axiosInstance.interceptors.request.eject(cache.requestQueueInterceptorId);
+                cache.skipInstances = cache.skipInstances.filter(instance => instance !== axiosInstance);
                 cache.requestQueueInterceptorId = undefined;
             })
             .catch(error => {
@@ -98,11 +103,16 @@ export function mergeConfigs(master: AxiosAuthRefreshOptions, def: AxiosAuthRefr
  * Returns TRUE: when error.response.status is contained in options.statusCodes
  * Returns FALSE: when error or error.response doesn't exist or options.statusCodes doesn't include response status
  */
-export function shouldInterceptError(error: any, options: AxiosAuthRefreshOptions, instance: AxiosInstance): boolean {
+export function shouldInterceptError(
+    error: any,
+    options: AxiosAuthRefreshOptions,
+    instance: AxiosInstance,
+    cache: AxiosAuthRefreshCache
+): boolean {
     return error
         && !(error.config && error.config.skipAuthRefresh)
         && error.response && options.statusCodes.includes(+error.response.status)
-        && !(instance.defaults && instance.defaults.params && instance.defaults.params.refreshing);
+        && !(options.skipWhileRefreshing && cache.skipInstances.includes(instance));
 }
 
 /**

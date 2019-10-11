@@ -89,30 +89,39 @@ describe('Uses options correctly', () => {
 
 describe('Determines if the response should be intercepted', () => {
 
+    let cache: AxiosAuthRefreshCache = undefined;
+    beforeEach(() => {
+        cache = {
+            skipInstances: [],
+            refreshCall: undefined,
+            requestQueueInterceptorId: undefined
+        };
+    });
+
     const options = { statusCodes: [ 401 ] };
 
     it('no error object provided', () => {
-        expect(shouldInterceptError(undefined, options, axios)).toBeFalsy();
+        expect(shouldInterceptError(undefined, options, axios, cache)).toBeFalsy();
     });
 
     it('no response inside error object', () => {
-        expect(shouldInterceptError({}, options, axios)).toBeFalsy();
+        expect(shouldInterceptError({}, options, axios, cache)).toBeFalsy();
     });
 
     it('no status in error.response object', () => {
-        expect(shouldInterceptError({ response: {} }, options, axios)).toBeFalsy();
+        expect(shouldInterceptError({ response: {} }, options, axios, cache)).toBeFalsy();
     });
 
     it('error does not include the response status', () => {
-        expect(shouldInterceptError({ response: { status: 403 } }, options, axios)).toBeFalsy();
+        expect(shouldInterceptError({ response: { status: 403 } }, options, axios, cache)).toBeFalsy();
     });
 
     it('error includes the response status', () => {
-        expect(shouldInterceptError({ response: { status: 401 } }, options, axios)).toBeTruthy();
+        expect(shouldInterceptError({ response: { status: 401 } }, options, axios, cache)).toBeTruthy();
     });
 
     it('error has response status specified as a string', () => {
-        expect(shouldInterceptError({ response: { status: '401' } }, options, axios)).toBeTruthy();
+        expect(shouldInterceptError({ response: { status: '401' } }, options, axios, cache)).toBeTruthy();
     });
 
     it('when skipAuthRefresh flag is set ot true', () => {
@@ -120,7 +129,7 @@ describe('Determines if the response should be intercepted', () => {
             response: { status: 401 },
             config: { skipAuthRefresh: true }
         };
-        expect(shouldInterceptError(error, options, axios)).toBeFalsy();
+        expect(shouldInterceptError(error, options, axios, cache)).toBeFalsy();
     });
 
     it('when skipAuthRefresh flag is set to false', () => {
@@ -128,7 +137,7 @@ describe('Determines if the response should be intercepted', () => {
             response: { status: 401 },
             config: { skipAuthRefresh: false }
         };
-        expect(shouldInterceptError(error, options, axios)).toBeTruthy();
+        expect(shouldInterceptError(error, options, axios, cache)).toBeTruthy();
     });
 });
 
@@ -137,6 +146,7 @@ describe('Creates refresh call', () => {
     let cache: AxiosAuthRefreshCache = undefined;
     beforeEach(() => {
         cache = {
+            skipInstances: [],
             refreshCall: undefined,
             requestQueueInterceptorId: undefined
         };
@@ -188,6 +198,7 @@ describe('Requests interceptor', () => {
     let cache: AxiosAuthRefreshCache = undefined;
     beforeEach(() => {
         cache = {
+            skipInstances: [],
             refreshCall: undefined,
             requestQueueInterceptorId: undefined
         };
@@ -262,14 +273,18 @@ describe('Creates the overall interceptor correctly', () => {
     it('does not change the interceptors queue', async () => {
         try {
             const instance = axios.create();
-            const id = createAuthRefreshInterceptor(axios, () => instance.get('https://httpstat.us/200'), { instance });
-            const interceptor1 = instance.interceptors.response['handlers'][id];
+            const id = createAuthRefreshInterceptor(
+                axios,
+                () => instance.get('https://httpstat.us/200'),
+                { instance }
+            );
             const id2 = instance.interceptors.response.use(req => req, error => Promise.reject(error));
+            const interceptor1 = instance.interceptors.response['handlers'][id];
             const interceptor2 = instance.interceptors.response['handlers'][id2];
             try {
                 await instance.get('https://httpstat.us/401');
             } catch (e) {
-                // Ignore error
+                // Ignore error as it's 401 all over again
             }
             const interceptor1__after = instance.interceptors.response['handlers'][id];
             const interceptor2__after = instance.interceptors.response['handlers'][id2];
