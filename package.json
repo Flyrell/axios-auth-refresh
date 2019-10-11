@@ -22,7 +22,7 @@
         "test": "jest",
         "test-coverage": "jest --coverage"
     },
-    "peerDependencies": {
+    "dependencies": {
         "axios": "^0.18.0"
     },
     "devDependencies": {
