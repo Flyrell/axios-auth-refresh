@@ -76,15 +76,6 @@ describe('Merges configs', () => {
 
 describe('Uses options correctly', () => {
 
-    it('uses only the axios instance provided in options', () => {
-        const instanceWithInterceptor = mockedAxios();
-        const instanceWithoutInterceptor = mockedAxios();
-        const id = createAuthRefreshInterceptor(axios, () => Promise.resolve(), {
-            instance: instanceWithInterceptor
-        });
-        expect(instanceWithInterceptor.interceptors.has('response', id)).toBeTruthy();
-        expect(instanceWithoutInterceptor.interceptors.has('response', id)).toBeFalsy();
-    });
 });
 
 describe('Determines if the response should be intercepted', () => {
@@ -207,15 +198,15 @@ describe('Requests interceptor', () => {
     it('is created', () => {
         const mock = mockedAxios();
         createRefreshCall({}, () => Promise.resolve(), cache);
-        const result1 = createRequestQueueInterceptor(mock, mock, cache);
+        const result1 = createRequestQueueInterceptor(mock, cache);
         expect(mock.interceptors.has('request', result1)).toBeTruthy();
         mock.interceptors.request.eject(result1);
     });
 
     it('is created only once', () => {
         createRefreshCall({}, () => Promise.resolve(), cache);
-        const result1 = createRequestQueueInterceptor(axios, axios.create(), cache);
-        const result2 = createRequestQueueInterceptor(axios, axios.create(), cache);
+        const result1 = createRequestQueueInterceptor(axios.create(), cache);
+        const result2 = createRequestQueueInterceptor(axios.create(), cache);
         expect(result1).toBe(result2);
     });
 
@@ -223,7 +214,7 @@ describe('Requests interceptor', () => {
         try {
             let refreshed = 0;
             const instance = axios.create();
-            createRequestQueueInterceptor(axios, instance, cache);
+            createRequestQueueInterceptor(instance, cache);
             createRefreshCall({}, async () => {
                 await sleep(400);
                 ++refreshed;
@@ -239,17 +230,13 @@ describe('Requests interceptor', () => {
         try {
             let passed = 0, caught = 0;
             const instance = axios.create();
-            createRequestQueueInterceptor(axios, instance, cache);
+            createRequestQueueInterceptor(instance, cache);
             createRefreshCall({}, async () => {
                 await sleep(500);
                 return Promise.reject();
             }, cache);
-            await instance.get('http://example.com')
-                .then(() => ++passed)
-                .catch(() => ++caught);
-            await instance.get('http://example.com')
-                .then(() => ++passed)
-                .catch(() => ++caught);
+            await instance.get('http://example.com').then(() => ++passed).catch(() => ++caught);
+            await instance.get('http://example.com').then(() => ++passed).catch(() => ++caught);
             expect(passed).toBe(0);
             expect(caught).toBe(2);
         } catch (e) {
