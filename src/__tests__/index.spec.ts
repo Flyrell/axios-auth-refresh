@@ -1,4 +1,4 @@
-import axios, {AxiosInstance} from 'axios';
+import axios, { AxiosStatic } from 'axios';
 import createAuthRefreshInterceptor, {
     mergeConfigs,
     shouldInterceptError,
@@ -8,7 +8,7 @@ import createAuthRefreshInterceptor, {
     AxiosAuthRefreshCache
 } from "../index";
 
-const mockedAxios: () => AxiosInstance | any = () => {
+const mockedAxios: () => AxiosStatic | any = () => {
     const bag = {
         request: [],
         response: [],
@@ -35,9 +35,12 @@ const mockedAxios: () => AxiosInstance | any = () => {
                 eject: jest.fn((i) => {
                     bag.response = bag.response.filter(n => n !== i);
                 })
-            }
+            },
+            has: bag.has
         },
-        has: bag.has
+        defaults: {
+            params: {}
+        }
     };
 };
 
@@ -79,8 +82,8 @@ describe('Uses options correctly', () => {
         const id = createAuthRefreshInterceptor(axios, () => Promise.resolve(), {
             instance: instanceWithInterceptor
         });
-        expect(instanceWithInterceptor.has('response', id)).toBeTruthy();
-        expect(instanceWithoutInterceptor.has('response', id)).toBeFalsy();
+        expect(instanceWithInterceptor.interceptors.has('response', id)).toBeTruthy();
+        expect(instanceWithoutInterceptor.interceptors.has('response', id)).toBeFalsy();
     });
 });
 
@@ -89,27 +92,27 @@ describe('Determines if the response should be intercepted', () => {
     const options = { statusCodes: [ 401 ] };
 
     it('no error object provided', () => {
-        expect(shouldInterceptError(undefined, options)).toBeFalsy();
+        expect(shouldInterceptError(undefined, options, axios)).toBeFalsy();
     });
 
     it('no response inside error object', () => {
-        expect(shouldInterceptError({}, options)).toBeFalsy();
+        expect(shouldInterceptError({}, options, axios)).toBeFalsy();
     });
 
     it('no status in error.response object', () => {
-        expect(shouldInterceptError({ response: {} }, options)).toBeFalsy();
+        expect(shouldInterceptError({ response: {} }, options, axios)).toBeFalsy();
     });
 
     it('error does not include the response status', () => {
-        expect(shouldInterceptError({ response: { status: 403 } }, options)).toBeFalsy();
+        expect(shouldInterceptError({ response: { status: 403 } }, options, axios)).toBeFalsy();
     });
 
     it('error includes the response status', () => {
-        expect(shouldInterceptError({ response: { status: 401 } }, options)).toBeTruthy();
+        expect(shouldInterceptError({ response: { status: 401 } }, options, axios)).toBeTruthy();
     });
 
     it('error has response status specified as a string', () => {
-        expect(shouldInterceptError({ response: { status: '401' } }, options)).toBeTruthy();
+        expect(shouldInterceptError({ response: { status: '401' } }, options, axios)).toBeTruthy();
     });
 
     it('when skipAuthRefresh flag is set ot true', () => {
@@ -117,7 +120,7 @@ describe('Determines if the response should be intercepted', () => {
             response: { status: 401 },
             config: { skipAuthRefresh: true }
         };
-        expect(shouldInterceptError(error, options)).toBeFalsy();
+        expect(shouldInterceptError(error, options, axios)).toBeFalsy();
     });
 
     it('when skipAuthRefresh flag is set to false', () => {
@@ -125,7 +128,7 @@ describe('Determines if the response should be intercepted', () => {
             response: { status: 401 },
             config: { skipAuthRefresh: false }
         };
-        expect(shouldInterceptError(error, options)).toBeTruthy();
+        expect(shouldInterceptError(error, options, axios)).toBeTruthy();
     });
 });
 
@@ -193,27 +196,29 @@ describe('Requests interceptor', () => {
     it('is created', () => {
         const mock = mockedAxios();
         createRefreshCall({}, () => Promise.resolve(), cache);
-        const result1 = createRequestQueueInterceptor(mock, cache);
-        expect(mock.has('request', result1)).toBeTruthy();
+        const result1 = createRequestQueueInterceptor(mock, mock, cache);
+        expect(mock.interceptors.has('request', result1)).toBeTruthy();
+        mock.interceptors.request.eject(result1);
     });
 
     it('is created only once', () => {
         createRefreshCall({}, () => Promise.resolve(), cache);
-        const result1 = createRequestQueueInterceptor(axios, cache);
-        const result2 = createRequestQueueInterceptor(axios, cache);
+        const result1 = createRequestQueueInterceptor(axios, axios.create(), cache);
+        const result2 = createRequestQueueInterceptor(axios, axios.create(), cache);
         expect(result1).toBe(result2);
     });
 
     it('intercepts the requests', async () => {
         try {
             let refreshed = 0;
-            createRequestQueueInterceptor(axios, cache);
+            const instance = axios.create();
+            createRequestQueueInterceptor(axios, instance, cache);
             createRefreshCall({}, async () => {
                 await sleep(400);
                 ++refreshed;
             }, cache);
-            await axios.get('http://example.com').then(() => expect(refreshed).toBe(1));
-            await axios.get('http://example.com').then(() => expect(refreshed).toBe(1));
+            await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
+            await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
         } catch (e) {
             expect(e).toBeFalsy();
         }
@@ -222,15 +227,16 @@ describe('Requests interceptor', () => {
     it('cancels all requests when refreshing call failed', async () => {
         try {
             let passed = 0, caught = 0;
-            createRequestQueueInterceptor(axios, cache);
+            const instance = axios.create();
+            createRequestQueueInterceptor(axios, instance, cache);
             createRefreshCall({}, async () => {
                 await sleep(500);
                 return Promise.reject();
             }, cache);
-            await axios.get('http://example.com')
+            await instance.get('http://example.com')
                 .then(() => ++passed)
                 .catch(() => ++caught);
-            await axios.get('http://example.com')
+            await instance.get('http://example.com')
                 .then(() => ++passed)
                 .catch(() => ++caught);
             expect(passed).toBe(0);
@@ -251,5 +257,26 @@ describe('Creates the overall interceptor correctly', () => {
         const id = createAuthRefreshInterceptor(axios, () => Promise.resolve());
         expect(typeof id).toBe('number');
         expect(id).toBeGreaterThan(-1);
+    });
+
+    it('does not change the interceptors queue', async () => {
+        try {
+            const instance = axios.create();
+            const id = createAuthRefreshInterceptor(axios, () => instance.get('https://httpstat.us/200'), { instance });
+            const interceptor1 = instance.interceptors.response['handlers'][id];
+            const id2 = instance.interceptors.response.use(req => req, error => Promise.reject(error));
+            const interceptor2 = instance.interceptors.response['handlers'][id2];
+            try {
+                await instance.get('https://httpstat.us/401');
+            } catch (e) {
+                // Ignore error
+            }
+            const interceptor1__after = instance.interceptors.response['handlers'][id];
+            const interceptor2__after = instance.interceptors.response['handlers'][id2];
+            expect(interceptor1).toBe(interceptor1__after);
+            expect(interceptor2).toBe(interceptor2__after);
+        } catch (e) {
+            return await Promise.reject();
+        }
     });
 });

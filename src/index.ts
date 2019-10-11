@@ -50,40 +50,41 @@ export default function createAuthRefreshInterceptor(
     // Get the instance of axios
     const axiosInstance = options.instance || axios;
 
-    const id = axiosInstance.interceptors.response.use((res: AxiosResponse) => res, (error: any) => {
+    return axiosInstance.interceptors.response.use((res: AxiosResponse) => res, (error: any) => {
 
         // Rewrite default config
         options = mergeConfigs(options, defaults);
 
         // Reject promise if the error status is not in options.ports
-        if (!shouldInterceptError(error, options)) {
+        if (!shouldInterceptError(error, options, axiosInstance)) {
             return Promise.reject(error);
         }
 
-        // Remove the interceptor to prevent a loop in case token refresh also causes the 401
-        axiosInstance.interceptors.response.eject(id);
-
         // If refresh call does not exist, create one
+        if (!axiosInstance.defaults.params) {
+            axiosInstance.defaults.params = {};
+        }
+        axiosInstance.defaults.params.refreshing = true;
         const refreshing = createRefreshCall(error, refreshTokenCall, cache);
 
         // Create interceptor that will bind all the others requests until refreshTokenCall is resolved
-        createRequestQueueInterceptor(axios, cache);
+        createRequestQueueInterceptor(axios, axiosInstance, cache);
 
-        // When response code is 401 (Unauthorized), try to refresh the token.
-        return refreshing.then(() => {
-            axiosInstance.interceptors.request.eject(cache.requestQueueInterceptorId);
-            return axios(error.response.config);
-        }).catch(error => {
-            axiosInstance.interceptors.request.eject(cache.requestQueueInterceptorId);
-            return Promise.reject(error);
-        }).finally(() => {
-            cache.refreshCall = undefined;
-            cache.requestQueueInterceptorId = undefined;
-            createAuthRefreshInterceptor(axios, refreshTokenCall, options)
-        });
+        return refreshing
+            .finally(() => {
+                cache.refreshCall = undefined;
+                axiosInstance.defaults.params.refreshing = undefined;
+                axiosInstance.interceptors.request.eject(cache.requestQueueInterceptorId);
+                cache.requestQueueInterceptorId = undefined;
+            })
+            .catch(error => {
+                return Promise.reject(error);
+            })
+            .then(() => {
+                error.config.skipAuthRefresh = true;
+                return axios(error.response.config);
+            });
     });
-
-    return id;
 }
 
 /**
@@ -97,10 +98,11 @@ export function mergeConfigs(master: AxiosAuthRefreshOptions, def: AxiosAuthRefr
  * Returns TRUE: when error.response.status is contained in options.statusCodes
  * Returns FALSE: when error or error.response doesn't exist or options.statusCodes doesn't include response status
  */
-export function shouldInterceptError(error: any, options: AxiosAuthRefreshOptions): boolean {
+export function shouldInterceptError(error: any, options: AxiosAuthRefreshOptions, instance: AxiosInstance): boolean {
     return error
         && !(error.config && error.config.skipAuthRefresh)
-        && error.response && options.statusCodes.includes(+error.response.status);
+        && error.response && options.statusCodes.includes(+error.response.status)
+        && !(instance.defaults && instance.defaults.params && instance.defaults.params.refreshing);
 }
 
 /**
@@ -124,16 +126,19 @@ export function createRefreshCall(
 /**
  * Creates refresh call if it does not exist or returns the existing one
  */
-export function createRequestQueueInterceptor(axios: AxiosStatic, cache: AxiosAuthRefreshCache): number {
+export function createRequestQueueInterceptor(
+    axios: AxiosStatic,
+    instance: AxiosInstance,
+    cache: AxiosAuthRefreshCache
+): number {
     if (typeof cache.requestQueueInterceptorId === 'undefined') {
-        cache.requestQueueInterceptorId = axios
-            .interceptors
-            .request
-            .use((request) => cache.refreshCall
-                .then(() => request)
+        cache.requestQueueInterceptorId = instance.interceptors.request.use((request) => {
+            return cache.refreshCall
                 .catch(() => {
-                    throw new axios.Cancel('Refresh call failed')
-                }));
+                    throw new axios.Cancel("Request call failed");
+                })
+                .then(() => request);
+        });
     }
     return cache.requestQueueInterceptorId;
 }
