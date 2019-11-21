@@ -1,6 +1,6 @@
 import axios, { AxiosStatic } from 'axios';
 import createAuthRefreshInterceptor, {
-    mergeConfigs,
+    mergeOptions,
     shouldInterceptError,
     createRefreshCall,
     createRequestQueueInterceptor,
@@ -58,19 +58,19 @@ describe('Merges configs', () => {
     it('master and slave are the same', () => {
         const master: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
         const slave: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        expect(mergeConfigs(master, slave)).toEqual({ statusCodes: [ 204 ] });
+        expect(mergeOptions(slave, master)).toEqual({ statusCodes: [ 204 ] });
     });
 
     it('master is different than the slave', () => {
         const master: AxiosAuthRefreshOptions = { statusCodes: [ 302 ] };
         const slave: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        expect(mergeConfigs(master, slave)).toEqual({ statusCodes: [ 302 ] });
+        expect(mergeOptions(slave, master)).toEqual({ statusCodes: [ 302 ] });
     });
 
     it('master is empty', () => {
         const master: AxiosAuthRefreshOptions = {};
         const slave: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        expect(mergeConfigs(master, slave)).toEqual({ statusCodes: [ 204 ] });
+        expect(mergeOptions(slave, master)).toEqual({ statusCodes: [ 204 ] });
     });
 });
 
