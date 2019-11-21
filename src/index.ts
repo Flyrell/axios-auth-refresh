@@ -92,8 +92,8 @@ export default function createAuthRefreshInterceptor(
 /**
  * Merges two options objects (master rewrites slave)
  */
-export function mergeOptions(def: AxiosAuthRefreshOptions, master: AxiosAuthRefreshOptions): AxiosAuthRefreshOptions {
-    return { ...def, ...master };
+export function mergeOptions(slave: AxiosAuthRefreshOptions, master: AxiosAuthRefreshOptions): AxiosAuthRefreshOptions {
+    return { ...slave, ...master };
 }
 
 /**
