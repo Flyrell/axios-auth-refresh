@@ -40,8 +40,9 @@ const cache: AxiosAuthRefreshCache = {
  * which indicates the interceptor to not intercept any responses from it. This is because you'd otherwise need to mark
  * the specific requests you make by yourself in order to make sure it's not intercepted. This behavior can be
  * turned off, but use it with caution as you need to mark the requests with `skipAuthRefresh` flag yourself in order to
- * not run into interceptors loop
- * @param {AxiosInstance} instance
+ * not run into interceptors loop.
+ *
+ * @param {AxiosInstance} instance - Axios HTTP client instance
  * @param {(error: any) => Promise<AxiosPromise>} refreshAuthCall - refresh token call which must return a Promise
  * @param {AxiosAuthRefreshOptions} options - options for the interceptor @see defaultOptions
  * @return {number} - interceptor id (in case you want to eject it manually)
@@ -90,7 +91,9 @@ export default function createAuthRefreshInterceptor(
 }
 
 /**
- * Merges two options objects (master rewrites slave)
+ * Merges two options objects (master rewrites slave).
+ *
+ * @return {AxiosAuthRefreshOptions}
  */
 export function mergeOptions(slave: AxiosAuthRefreshOptions, master: AxiosAuthRefreshOptions): AxiosAuthRefreshOptions {
     return { ...slave, ...master };
@@ -99,6 +102,8 @@ export function mergeOptions(slave: AxiosAuthRefreshOptions, master: AxiosAuthRe
 /**
  * Returns TRUE: when error.response.status is contained in options.statusCodes
  * Returns FALSE: when error or error.response doesn't exist or options.statusCodes doesn't include response status
+ *
+ * @return {boolean}
  */
 export function shouldInterceptError(
     error: any,
@@ -113,7 +118,9 @@ export function shouldInterceptError(
 }
 
 /**
- * Creates refresh call if it does not exist or returns the existing one
+ * Creates refresh call if it does not exist or returns the existing one.
+ *
+ * @return {Promise<any>}
  */
 export function createRefreshCall(
     error: any,
@@ -131,7 +138,9 @@ export function createRefreshCall(
 }
 
 /**
- * Creates refresh call if it does not exist or returns the existing one
+ * Creates refresh call if it does not exist or returns the existing one.
+ *
+ * @return {number}
  */
 export function createRequestQueueInterceptor(
     instance: AxiosInstance,
