@@ -20,7 +20,7 @@ export interface AxiosAuthRefreshRequestConfig extends AxiosRequestConfig {
 
 // Constants
 
-const defaults: AxiosAuthRefreshOptions = {
+const defaultOptions: AxiosAuthRefreshOptions = {
     statusCodes: [ 401 ],
     instance: undefined,
     skipWhileRefreshing: true
@@ -57,8 +57,8 @@ export default function createAuthRefreshInterceptor(
 
     return instance.interceptors.response.use((res: AxiosResponse) => res, (error: any) => {
 
-        // Rewrite default config
-        options = mergeConfigs(options, defaults);
+        // Rewrite default options
+        options = mergeOptions(defaultOptions, options);
 
         // Reject promise if the error status is not in options.ports
         if (!shouldInterceptError(error, options, instance, cache)) {
@@ -90,10 +90,10 @@ export default function createAuthRefreshInterceptor(
 }
 
 /**
- * Merges two config objects (master rewrites slave)
+ * Merges two options objects (master rewrites slave)
  */
-export function mergeConfigs(master: AxiosAuthRefreshOptions, def: AxiosAuthRefreshOptions): AxiosAuthRefreshOptions {
-    return { ...def, ...master };
+export function mergeOptions(slave: AxiosAuthRefreshOptions, master: AxiosAuthRefreshOptions): AxiosAuthRefreshOptions {
+    return { ...slave, ...master };
 }
 
 /**
