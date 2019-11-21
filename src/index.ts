@@ -138,7 +138,7 @@ export function createRefreshCall(
 }
 
 /**
- * Creates refresh call if it does not exist or returns the existing one.
+ * Creates request queue interceptor if it does not exist and returns its id.
  *
  * @return {number}
  */
