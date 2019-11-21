@@ -9,13 +9,13 @@ export interface AxiosAuthRefreshOptions {
 }
 
 export interface AxiosAuthRefreshCache {
-    skipInstances: AxiosInstance[],
-    refreshCall: Promise<any>|undefined,
-    requestQueueInterceptorId: number|undefined
+    skipInstances: AxiosInstance[];
+    refreshCall: Promise<any>|undefined;
+    requestQueueInterceptorId: number|undefined;
 }
 
 export interface AxiosAuthRefreshRequestConfig extends AxiosRequestConfig {
-    skipAuthRefresh?: boolean
+    skipAuthRefresh?: boolean;
 }
 
 // Constants
@@ -23,13 +23,13 @@ export interface AxiosAuthRefreshRequestConfig extends AxiosRequestConfig {
 const defaultOptions: AxiosAuthRefreshOptions = {
     statusCodes: [ 401 ],
     instance: undefined,
-    skipWhileRefreshing: true
+    skipWhileRefreshing: true,
 };
 
 const cache: AxiosAuthRefreshCache = {
     skipInstances: [],
     refreshCall: undefined,
-    requestQueueInterceptorId: undefined
+    requestQueueInterceptorId: undefined,
 };
 
 /**
@@ -55,7 +55,7 @@ export default function createAuthRefreshInterceptor(
         throw new Error('axios-auth-refresh requires `refreshAuthCall` to be a function that returns a promise.');
     }
 
-    return instance.interceptors.response.use((res: AxiosResponse) => res, (error: any) => {
+    return instance.interceptors.response.use((response: AxiosResponse) => response, (error: any) => {
 
         // Rewrite default options
         options = mergeOptions(defaultOptions, options);
