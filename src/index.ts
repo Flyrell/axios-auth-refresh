@@ -76,7 +76,7 @@ export default function createAuthRefreshInterceptor(
             .finally(() => {
                 cache.refreshCall = undefined;
                 instance.interceptors.request.eject(cache.requestQueueInterceptorId);
-                cache.skipInstances = cache.skipInstances.filter(instance => instance !== instance);
+                cache.skipInstances = cache.skipInstances.filter(skipInstance => skipInstance !== instance);
                 cache.requestQueueInterceptorId = undefined;
             })
             .catch(error => {
