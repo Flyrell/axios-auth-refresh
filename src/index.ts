@@ -73,12 +73,7 @@ export default function createAuthRefreshInterceptor(
         createRequestQueueInterceptor(instance, cache);
 
         return refreshing
-            .finally(() => {
-                cache.refreshCall = undefined;
-                instance.interceptors.request.eject(cache.requestQueueInterceptorId);
-                cache.skipInstances = cache.skipInstances.filter(skipInstance => skipInstance !== instance);
-                cache.requestQueueInterceptorId = undefined;
-            })
+            .finally(() => unsetCache(instance, cache))
             .catch(error => {
                 return Promise.reject(error);
             })
@@ -147,4 +142,20 @@ export function createRequestQueueInterceptor(
         });
     }
     return cache.requestQueueInterceptorId;
+}
+
+/**
+ * Ejects request queue interceptor and unset interceptor cached values.
+ *
+ * @param {AxiosInstance} instance
+ * @param {AxiosAuthRefreshCache} cache
+ */
+function unsetCache(
+    instance: AxiosInstance,
+    cache: AxiosAuthRefreshCache,
+): void {
+    instance.interceptors.request.eject(cache.requestQueueInterceptorId);
+    cache.requestQueueInterceptorId = undefined;
+    cache.refreshCall = undefined;
+    cache.skipInstances = cache.skipInstances.filter(skipInstance => skipInstance !== instance);
 }
