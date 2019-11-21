@@ -108,7 +108,7 @@ export function shouldInterceptError(
 ): boolean {
     return error
         && !(error.config && error.config.skipAuthRefresh)
-        && error.response && options.statusCodes.includes(+error.response.status)
+        && error.response && options.statusCodes.includes(parseInt(error.response.status))
         && !(options.skipWhileRefreshing && cache.skipInstances.includes(instance));
 }
 
