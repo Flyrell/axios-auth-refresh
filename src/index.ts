@@ -109,10 +109,19 @@ export function shouldInterceptError(
     instance: AxiosInstance,
     cache: AxiosAuthRefreshCache,
 ): boolean {
-    return error
-        && !(error.config && error.config.skipAuthRefresh)
-        && error.response && options.statusCodes.includes(+error.response.status)
-        && !(options.skipWhileRefreshing && cache.skipInstances.includes(instance));
+    if (!error) {
+        return false;
+    }
+
+    if (error.config && error.config.skipAuthRefresh) {
+        return false;
+    }
+
+    if (!error.response || !options.statusCodes.includes(parseInt(error.response.status))) {
+        return false;
+    }
+
+    return !options.skipWhileRefreshing || !cache.skipInstances.includes(instance);
 }
 
 /**
