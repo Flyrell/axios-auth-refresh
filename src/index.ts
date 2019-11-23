@@ -49,7 +49,7 @@ const cache: AxiosAuthRefreshCache = {
 export default function createAuthRefreshInterceptor(
     instance: AxiosInstance,
     refreshAuthCall: (error: any) => Promise<any>,
-    options: AxiosAuthRefreshOptions = {}
+    options: AxiosAuthRefreshOptions = {},
 ): number {
     if (typeof refreshAuthCall !== 'function') {
         throw new Error('axios-auth-refresh requires `refreshAuthCall` to be a function that returns a promise.');
@@ -92,7 +92,10 @@ export default function createAuthRefreshInterceptor(
 /**
  * Merges two options objects (master rewrites slave)
  */
-export function mergeOptions(slave: AxiosAuthRefreshOptions, master: AxiosAuthRefreshOptions): AxiosAuthRefreshOptions {
+export function mergeOptions(
+    slave: AxiosAuthRefreshOptions,
+    master: AxiosAuthRefreshOptions,
+): AxiosAuthRefreshOptions {
     return { ...slave, ...master };
 }
 
@@ -104,7 +107,7 @@ export function shouldInterceptError(
     error: any,
     options: AxiosAuthRefreshOptions,
     instance: AxiosInstance,
-    cache: AxiosAuthRefreshCache
+    cache: AxiosAuthRefreshCache,
 ): boolean {
     return error
         && !(error.config && error.config.skipAuthRefresh)
@@ -118,7 +121,7 @@ export function shouldInterceptError(
 export function createRefreshCall(
     error: any,
     fn: (error: any) => Promise<any>,
-    cache: AxiosAuthRefreshCache
+    cache: AxiosAuthRefreshCache,
 ): Promise<any> {
     if (!cache.refreshCall) {
         cache.refreshCall = fn(error);
@@ -135,7 +138,7 @@ export function createRefreshCall(
  */
 export function createRequestQueueInterceptor(
     instance: AxiosInstance,
-    cache: AxiosAuthRefreshCache
+    cache: AxiosAuthRefreshCache,
 ): number {
     if (typeof cache.requestQueueInterceptorId === 'undefined') {
         cache.requestQueueInterceptorId = instance.interceptors.request.use((request) => {
