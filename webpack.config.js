@@ -1,17 +1,28 @@
-const path = require('path');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-    mode: 'production',
+    devtool: "inline-source-map",
+    entry: "./src/index.ts",
+    output: {
+        filename: 'index.min.js',
+        library: 'axios-auth-refresh',
+        libraryTarget: 'commonjs2'
+    },
+    resolve: {
+        extensions: [".ts", ".tsx", ".js"]
+    },
     module: {
         rules: [
-            { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
+            { test: /\.tsx?$/, exclude: "/node-modules/", loader: "ts-loader" }
         ]
     },
-    entry: './src/index.js',
-    output: {
-        library: 'axios-auth-refresh',
-        libraryTarget: 'commonjs-module',
-        filename: 'index.min.js',
-        path: path.resolve(__dirname, 'dist')
-    }
+    optimization: {
+        minimizer: [
+            new UglifyJsPlugin()
+        ]
+    },
+    plugins: [
+        new CleanWebpackPlugin()
+    ]
 };

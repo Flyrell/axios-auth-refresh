@@ -19,9 +19,9 @@ Please update the docs accordingly so that there are no discrepencies between th
 
 ### Developing
 
-Please, use [yarn](https://yarnpkg.com/en/docs/install) as a package manager if it's not a problem for you.
+Please, use npm as a package manager if it's not a problem for you.
 Please, always include changes to `dist/` in your pull request.
 Please, do not include any `OS/IDE specific files` in your pull request.
 
 ### Build
-Please, use `yarn build` to build the package.
+Please, use `npm run build` to build the package.
