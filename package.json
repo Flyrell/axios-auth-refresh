@@ -1,6 +1,6 @@
 {
     "name": "axios-auth-refresh",
-    "version": "1.0.7",
+    "version": "2.0.0",
     "description": "Axios plugin which makes it very easy to automatically refresh the authorization tokens of your clients",
     "keywords": [
         "axios",
