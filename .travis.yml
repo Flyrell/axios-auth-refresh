@@ -9,4 +9,13 @@ cache:
 
 script:
   - "npm test"
+
+before_deploy:
   - "npm run build"
+
+deploy:
+  provider: npm
+  email: "$NPM_EMAIL"
+  api_key: "$NPM_API_TOKEN"
+  on:
+    branch: master
