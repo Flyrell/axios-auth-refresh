@@ -150,7 +150,7 @@ export function createRequestQueueInterceptor(
  * @param {AxiosInstance} instance
  * @param {AxiosAuthRefreshCache} cache
  */
-function unsetCache(
+export function unsetCache(
     instance: AxiosInstance,
     cache: AxiosAuthRefreshCache,
 ): void {
