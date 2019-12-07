@@ -7,7 +7,7 @@ import createAuthRefreshInterceptor, {
     createRequestQueueInterceptor,
     AxiosAuthRefreshOptions,
     AxiosAuthRefreshCache
-} from "../index";
+} from '../index';
 
 const mockedAxios: () => AxiosStatic | any = () => {
     const bag = {
