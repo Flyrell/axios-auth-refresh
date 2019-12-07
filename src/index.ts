@@ -1,4 +1,4 @@
-import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
+import axios, {AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse} from "axios";
 
 // Types
 
@@ -78,10 +78,7 @@ export default function createAuthRefreshInterceptor(
             .catch(error => {
                 return Promise.reject(error);
             })
-            .then(() => {
-                error.config.skipAuthRefresh = true;
-                return axios(error.response.config);
-            });
+            .then(() => resendFailedRequest(error));
     });
 }
 
@@ -179,4 +176,17 @@ export function unsetCache(
     cache.requestQueueInterceptorId = undefined;
     cache.refreshCall = undefined;
     cache.skipInstances = cache.skipInstances.filter(skipInstance => skipInstance !== instance);
+}
+
+/**
+ * Resend failed axios request.
+ *
+ * @param {any} error
+ * @return AxiosPromise
+ */
+function resendFailedRequest(
+    error: any,
+): AxiosPromise {
+    error.config.skipAuthRefresh = true;
+    return axios(error.response.config);
 }
