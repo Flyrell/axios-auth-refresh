@@ -1,4 +1,4 @@
-import axios, {AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse} from "axios";
+import axios, {AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse} from 'axios';
 
 // Types
 
@@ -58,16 +58,15 @@ export default function createAuthRefreshInterceptor(
 
     return instance.interceptors.response.use((response: AxiosResponse) => response, (error: any) => {
 
-        // Rewrite default options
         options = mergeOptions(defaultOptions, options);
 
-        // Reject promise if the error status is not in options.ports
         if (!shouldInterceptError(error, options, instance, cache)) {
             return Promise.reject(error);
         }
 
-        // If refresh call does not exist, create one
         cache.skipInstances.push(instance);
+
+        // If refresh call does not exist, create one
         const refreshing = createRefreshCall(error, refreshAuthCall, cache);
 
         // Create interceptor that will bind all the others requests until refreshAuthCall is resolved
@@ -75,9 +74,7 @@ export default function createAuthRefreshInterceptor(
 
         return refreshing
             .finally(() => unsetCache(instance, cache))
-            .catch(error => {
-                return Promise.reject(error);
-            })
+            .catch(error => Promise.reject(error))
             .then(() => resendFailedRequest(error));
     });
 }
@@ -154,7 +151,7 @@ export function createRequestQueueInterceptor(
         cache.requestQueueInterceptorId = instance.interceptors.request.use((request) => {
             return cache.refreshCall
                 .catch(() => {
-                    throw new axios.Cancel("Request call failed");
+                    throw new axios.Cancel('Request call failed');
                 })
                 .then(() => request);
         });
