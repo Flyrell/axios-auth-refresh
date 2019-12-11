@@ -58,16 +58,15 @@ export default function createAuthRefreshInterceptor(
 
     return instance.interceptors.response.use((response: AxiosResponse) => response, (error: any) => {
 
-        // Rewrite default options
         options = mergeOptions(defaultOptions, options);
 
-        // Reject promise if the error status is not in options.ports
         if (!shouldInterceptError(error, options, instance, cache)) {
             return Promise.reject(error);
         }
 
-        // If refresh call does not exist, create one
         cache.skipInstances.push(instance);
+
+        // If refresh call does not exist, create one
         const refreshing = createRefreshCall(error, refreshAuthCall, cache);
 
         // Create interceptor that will bind all the others requests until refreshAuthCall is resolved
