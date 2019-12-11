@@ -75,9 +75,7 @@ export default function createAuthRefreshInterceptor(
 
         return refreshing
             .finally(() => unsetCache(instance, cache))
-            .catch(error => {
-                return Promise.reject(error);
-            })
+            .catch(error => Promise.reject(error))
             .then(() => {
                 error.config.skipAuthRefresh = true;
                 return axios(error.response.config);
