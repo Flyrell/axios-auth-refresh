@@ -1,4 +1,4 @@
-import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
+import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 
 // Types
 
@@ -157,7 +157,7 @@ export function createRequestQueueInterceptor(
         cache.requestQueueInterceptorId = instance.interceptors.request.use((request) => {
             return cache.refreshCall
                 .catch(() => {
-                    throw new axios.Cancel("Request call failed");
+                    throw new axios.Cancel('Request call failed');
                 })
                 .then(() => request);
         });
