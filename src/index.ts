@@ -75,7 +75,7 @@ export default function createAuthRefreshInterceptor(
         return refreshing
             .finally(() => unsetCache(instance, cache))
             .catch(error => Promise.reject(error))
-            .then(() => resendFailedRequest(error));
+            .then(() => resendFailedRequest(error, instance));
     });
 }
 
@@ -179,11 +179,13 @@ export function unsetCache(
  * Resend failed axios request.
  *
  * @param {any} error
+ * @param {AxiosInstance} instance
  * @return AxiosPromise
  */
 function resendFailedRequest(
     error: any,
+    instance: AxiosInstance
 ): AxiosPromise {
     error.config.skipAuthRefresh = true;
-    return axios(error.response.config);
+    return instance(error.response.config);
 }
