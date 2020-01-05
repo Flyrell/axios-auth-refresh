@@ -29,9 +29,9 @@ yarn add axios-auth-refresh
 
 ```typescript
 createAuthRefreshInterceptor(
-    axios: AxiosStatic,
+    axios: AxiosInstance,
     refreshAuthLogic: (failedRequest: any) => Promise<any>,
-    options?: AxiosAuthRefreshOptions = {}
+    options: AxiosAuthRefreshOptions = {}
 ): number;
 ```
 
@@ -45,7 +45,6 @@ Accepts exactly one parameter, which is the `failedRequest` returned by the orig
 Interceptor `id` in case you want to reject it manually.
 
 ## Usage
-
 In order to activate the interceptors, you need to import a function from `axios-auth-refresh`
 which is *exported by default* and call it with the **axios instance** you want the interceptors for, 
 as well as the **refresh authorization function** where you need to write the logic for refreshing the authorization.
@@ -75,14 +74,19 @@ axios.get('https://www.example.com/restricted/area')
     .catch(/* ... */);
 ```
 
-#### Skipping the interceptor (BETA)
+#### Skipping the interceptor
+
+:warning: Because of the bug [axios#2295](https://github.com/axios/axios/issues/2295) v0.19.0 is not supported. :warning:
+
+:white_check_mark: This has been fixed and will be released in axios v0.19.1
+
 There's a possibility to skip the logic of the interceptor for specific calls.
 To do this, you need to pass the `skipAuthRefresh` option to the request config for each request you don't want to intercept.
 ```javascript
 axios.get('https://www.example.com/', { skipAuthRefresh: true });
 ```
 
-If you're using typescript you can import the custom request config interface from `axios-auth-refresh`.
+If you're using TypeScript you can import the custom request config interface from `axios-auth-refresh`.
 ```typescript
 import { AxiosAuthRefreshRequestConfig } from 'axios-auth-refresh';
 ```
