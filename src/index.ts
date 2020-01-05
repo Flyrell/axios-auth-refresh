@@ -6,6 +6,7 @@ export interface AxiosAuthRefreshOptions {
     statusCodes?: Array<number>;
     retryInstance?: AxiosInstance;
     skipWhileRefreshing?: boolean;
+    onRetry?: (requestConfig: AxiosRequestConfig) => AxiosRequestConfig
 }
 
 export interface AxiosAuthRefreshCache {
@@ -69,7 +70,7 @@ export default function createAuthRefreshInterceptor(
         const refreshing = createRefreshCall(error, refreshAuthCall, cache);
 
         // Create interceptor that will bind all the others requests until refreshAuthCall is resolved
-        createRequestQueueInterceptor(instance, cache);
+        createRequestQueueInterceptor(instance, cache, options);
 
         return refreshing
             .finally(() => unsetCache(instance, cache))
@@ -145,6 +146,7 @@ export function createRefreshCall(
 export function createRequestQueueInterceptor(
     instance: AxiosInstance,
     cache: AxiosAuthRefreshCache,
+    options: AxiosAuthRefreshOptions,
 ): number {
     if (typeof cache.requestQueueInterceptorId === 'undefined') {
         cache.requestQueueInterceptorId = instance.interceptors.request.use((request) => {
@@ -152,7 +154,7 @@ export function createRequestQueueInterceptor(
                 .catch(() => {
                     throw new axios.Cancel('Request call failed');
                 })
-                .then(() => request);
+                .then(() => options.onRetry ? options.onRetry(request) : request);
         });
     }
     return cache.requestQueueInterceptorId;
