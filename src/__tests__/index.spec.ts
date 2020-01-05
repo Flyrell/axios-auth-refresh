@@ -2,11 +2,13 @@ import axios, { AxiosStatic } from 'axios';
 import createAuthRefreshInterceptor, {
     unsetCache,
     mergeOptions,
-    shouldInterceptError,
+    defaultOptions,
+    getRetryInstance,
     createRefreshCall,
-    createRequestQueueInterceptor,
+    shouldInterceptError,
+    AxiosAuthRefreshCache,
     AxiosAuthRefreshOptions,
-    AxiosAuthRefreshCache
+    createRequestQueueInterceptor,
 } from '../index';
 
 const mockedAxios: () => AxiosStatic | any = () => {
@@ -244,6 +246,18 @@ describe('Requests interceptor', () => {
             expect(e).toBeFalsy();
         }
     });
+
+    it('uses the correct instance of axios to retry requests', async () => {
+        const instance = axios.create();
+        const options = mergeOptions(defaultOptions, {});
+        const result = getRetryInstance(instance, options);
+        expect(result).toBe(instance);
+
+        const retryInstance = axios.create();
+        const optionsWithRetryInstance = mergeOptions(defaultOptions, { retryInstance });
+        const resultWithRetryInstance = getRetryInstance(instance, optionsWithRetryInstance);
+        expect(resultWithRetryInstance).toBe(retryInstance);
+    });
 });
 
 describe('Creates the overall interceptor correctly', () => {
@@ -263,8 +277,7 @@ describe('Creates the overall interceptor correctly', () => {
             const instance = axios.create();
             const id = createAuthRefreshInterceptor(
                 axios,
-                () => instance.get('https://httpstat.us/200'),
-                { instance }
+                () => instance.get('https://httpstat.us/200')
             );
             const id2 = instance.interceptors.response.use(req => req, error => Promise.reject(error));
             const interceptor1 = instance.interceptors.response['handlers'][id];

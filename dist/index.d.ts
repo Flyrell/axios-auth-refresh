@@ -1,7 +1,7 @@
 import { AxiosInstance, AxiosRequestConfig } from 'axios';
 export interface AxiosAuthRefreshOptions {
-    instance?: AxiosInstance;
     statusCodes?: Array<number>;
+    retryInstance?: AxiosInstance;
     skipWhileRefreshing?: boolean;
 }
 export interface AxiosAuthRefreshCache {
@@ -12,6 +12,7 @@ export interface AxiosAuthRefreshCache {
 export interface AxiosAuthRefreshRequestConfig extends AxiosRequestConfig {
     skipAuthRefresh?: boolean;
 }
+export declare const defaultOptions: AxiosAuthRefreshOptions;
 /**
  * Creates an authentication refresh interceptor that binds to any error response.
  * If the response status code is one of the options.statusCodes, interceptor calls the refreshAuthCall
@@ -60,3 +61,10 @@ export declare function createRequestQueueInterceptor(instance: AxiosInstance, c
  * @param {AxiosAuthRefreshCache} cache
  */
 export declare function unsetCache(instance: AxiosInstance, cache: AxiosAuthRefreshCache): void;
+/**
+ * Returns instance that's going to be used when requests are retried
+ *
+ * @param instance
+ * @param options
+ */
+export declare function getRetryInstance(instance: AxiosInstance, options: AxiosAuthRefreshOptions): AxiosInstance;

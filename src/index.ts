@@ -3,8 +3,8 @@ import axios, {AxiosInstance, AxiosPromise, AxiosRequestConfig, AxiosResponse} f
 // Types
 
 export interface AxiosAuthRefreshOptions {
-    instance?: AxiosInstance;
     statusCodes?: Array<number>;
+    retryInstance?: AxiosInstance;
     skipWhileRefreshing?: boolean;
 }
 
@@ -20,9 +20,8 @@ export interface AxiosAuthRefreshRequestConfig extends AxiosRequestConfig {
 
 // Constants
 
-const defaultOptions: AxiosAuthRefreshOptions = {
+export const defaultOptions: AxiosAuthRefreshOptions = {
     statusCodes: [ 401 ],
-    instance: undefined,
     skipWhileRefreshing: true,
 };
 
@@ -75,7 +74,7 @@ export default function createAuthRefreshInterceptor(
         return refreshing
             .finally(() => unsetCache(instance, cache))
             .catch(error => Promise.reject(error))
-            .then(() => resendFailedRequest(error, instance));
+            .then(() => resendFailedRequest(error, getRetryInstance(instance, options)));
     });
 }
 
@@ -173,6 +172,16 @@ export function unsetCache(
     cache.requestQueueInterceptorId = undefined;
     cache.refreshCall = undefined;
     cache.skipInstances = cache.skipInstances.filter(skipInstance => skipInstance !== instance);
+}
+
+/**
+ * Returns instance that's going to be used when requests are retried
+ *
+ * @param instance
+ * @param options
+ */
+export function getRetryInstance(instance: AxiosInstance, options: AxiosAuthRefreshOptions): AxiosInstance {
+    return options.retryInstance || instance;
 }
 
 /**
