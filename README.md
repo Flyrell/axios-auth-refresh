@@ -122,7 +122,7 @@ You can specify multiple status codes that you want the interceptor to run for.
 }
 ```
 
-#### Retry instance
+#### Retry instance for stalled requests
 
 You can specify the instance which will be used for retrying the stalled requests.
 Default value is `undefined` and the instance passed to `createAuthRefreshInterceptor` function is used.
@@ -130,6 +130,17 @@ Default value is `undefined` and the instance passed to `createAuthRefreshInterc
 ```javascript
 {
     retryInstance: someAxiosInstance // default: undefined
+}
+```
+
+#### `onRetry` callback before sending the stalled requests
+
+You can specify the `onRetry` callback which will be called before each
+stalled request is called with the request configuration object.
+
+```javascript
+{
+    onRetry: (requestConfig) => ({ ...requestConfig, baseURL: '' }) // default: undefined
 }
 ```
 
