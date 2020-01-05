@@ -140,5 +140,7 @@ This library has also been used for:
 
 have you used it for something else? Create a PR with your use case to share it.
 
+---
+
 #### Want to help?
 Check out [contribution guide](CONTRIBUTING.md) or my [patreon page!](https://www.patreon.com/dawidzbinski)
