@@ -147,5 +147,15 @@ in request's configuration
 }
 ```
 
-#### Want to help me?
+### Other usages of the library
+This library has also been used for:
+
+- Automatic request throttling by @amcsi
+- OTP challenges with Google2FA by @LeoniePhiline
+
+have you used it for something else? Create a PR with your use case to share it.
+
+---
+
+#### Want to help?
 Check out [contribution guide](CONTRIBUTING.md) or my [patreon page!](https://www.patreon.com/dawidzbinski)
