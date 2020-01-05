@@ -3,6 +3,7 @@ export interface AxiosAuthRefreshOptions {
     statusCodes?: Array<number>;
     retryInstance?: AxiosInstance;
     skipWhileRefreshing?: boolean;
+    onRetry?: (requestConfig: AxiosRequestConfig) => AxiosRequestConfig;
 }
 export interface AxiosAuthRefreshCache {
     skipInstances: AxiosInstance[];
@@ -53,7 +54,7 @@ export declare function createRefreshCall(error: any, fn: (error: any) => Promis
  *
  * @return {number}
  */
-export declare function createRequestQueueInterceptor(instance: AxiosInstance, cache: AxiosAuthRefreshCache): number;
+export declare function createRequestQueueInterceptor(instance: AxiosInstance, cache: AxiosAuthRefreshCache, options: AxiosAuthRefreshOptions): number;
 /**
  * Ejects request queue interceptor and unset interceptor cached values.
  *
