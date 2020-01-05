@@ -76,7 +76,9 @@ axios.get('https://www.example.com/restricted/area')
 
 #### Skipping the interceptor
 
-:warning: Because of the bug [axios#2295](https://github.com/axios/axios/issues/2295) it's not possible to use this configuration option in axios v0.19.0 (supported versions are <= 0.18 or >= 0.19.1) :warning:
+:warning: Because of the bug [axios#2295](https://github.com/axios/axios/issues/2295) v0.19.0 is not supported. :warning:
+
+:white_check_mark: This has been fixed and will be released in axios v0.19.1
 
 There's a possibility to skip the logic of the interceptor for specific calls.
 To do this, you need to pass the `skipAuthRefresh` option to the request config for each request you don't want to intercept.
