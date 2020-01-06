@@ -4,6 +4,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = {
     devtool: "inline-source-map",
     entry: "./src/index.ts",
+    externals: [ 'axios' ],
     output: {
         filename: 'index.min.js',
         library: 'axios-auth-refresh',
