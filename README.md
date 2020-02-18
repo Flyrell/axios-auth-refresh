@@ -170,3 +170,8 @@ have you used it for something else? Create a PR with your use case to share it.
 
 #### Want to help?
 Check out [contribution guide](CONTRIBUTING.md) or my [patreon page!](https://www.patreon.com/dawidzbinski)
+
+---
+
+#### Special thanks to [JetBrains](https://www.jetbrains.com/?from=axios-auth-refresh) for providing the IDE for out library
+<a href="https://www.jetbrains.com/?from=axios-auth-refresh" title="Link to JetBrains"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/JetBrains_Logo_2016.svg/128px-JetBrains_Logo_2016.svg.png" alt="JetBrains"></a>
