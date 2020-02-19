@@ -1,6 +1,6 @@
 {
     "name": "axios-auth-refresh",
-    "version": "2.2.1",
+    "version": "2.2.2",
     "description": "Axios plugin which makes it very easy to automatically refresh the authorization tokens of your clients",
     "keywords": [
         "axios",
@@ -39,5 +39,8 @@
         "uglifyjs-webpack-plugin": "^2.2.0",
         "webpack": "^4.41.5",
         "webpack-cli": "^3.3.10"
-    }
+    },
+    "files": [
+        "dist/*"
+    ]
 }
