@@ -9,7 +9,7 @@ via axios [interceptors](https://github.com/axios/axios#interceptors).
 You can easily intercept the original request when it fails, refresh the authorization and continue with the original request,
 without any user interaction.
 
-What happens when the request fails dur to authorization is all up to you.
+What happens when the request fails due to authorization is all up to you.
 You can either run a refresh call for a new authorization token or run a custom logic. 
 
 The plugin stalls additional requests that have come in while waiting for a new authorization token
@@ -49,7 +49,7 @@ In order to activate the interceptors, you need to import a function from `axios
 which is *exported by default* and call it with the **axios instance** you want the interceptors for, 
 as well as the **refresh authorization function** where you need to write the logic for refreshing the authorization.
 
-The interceptors will then be bound onto the axios instance and the specified logic will be ran whenever a [401 (Unauthorized)](https://httpstatuses.com/401) status code 
+The interceptors will then be bound onto the axios instance and the specified logic will be run whenever a [401 (Unauthorized)](https://httpstatuses.com/401) status code 
 is returned from a server (or any other status code you provide in options). All the new requests created while the refreshAuthLogic has been processing will be bound onto the 
 Promise returned from the refreshAuthLogic function. This means that the requests will be resolved when a new access token has been fetched or when the refreshing logic faleid.
 
@@ -170,3 +170,8 @@ have you used it for something else? Create a PR with your use case to share it.
 
 #### Want to help?
 Check out [contribution guide](CONTRIBUTING.md) or my [patreon page!](https://www.patreon.com/dawidzbinski)
+
+---
+
+#### Special thanks to [JetBrains](https://www.jetbrains.com/?from=axios-auth-refresh) for providing the IDE for out library
+<a href="https://www.jetbrains.com/?from=axios-auth-refresh" title="Link to JetBrains"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/JetBrains_Logo_2016.svg/128px-JetBrains_Logo_2016.svg.png" alt="JetBrains"></a>
