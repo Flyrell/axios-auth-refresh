@@ -161,8 +161,8 @@ in request's configuration
 ### Other usages of the library
 This library has also been used for:
 
-- Automatic request throttling by @amcsi
-- OTP challenges with Google2FA by @LeoniePhiline
+- Automatic request throttling by [@amcsi](https://github.com/amcsi)
+- OTP challenges with Google2FA by [@LeoniePhiline](https://github.com/LeoniePhiline)
 
 have you used it for something else? Create a PR with your use case to share it.
 
