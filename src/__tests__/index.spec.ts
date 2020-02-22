@@ -1,5 +1,6 @@
-import axios, {AxiosRequestConfig, AxiosStatic} from 'axios';
-import createAuthRefreshInterceptor, {
+import axios, { AxiosRequestConfig, AxiosStatic } from 'axios';
+import createAuthRefreshInterceptor, { AxiosAuthRefreshOptions } from "../index";
+import {
     unsetCache,
     mergeOptions,
     defaultOptions,
@@ -7,9 +8,8 @@ import createAuthRefreshInterceptor, {
     createRefreshCall,
     shouldInterceptError,
     AxiosAuthRefreshCache,
-    AxiosAuthRefreshOptions,
     createRequestQueueInterceptor,
-} from '../index';
+} from "../utils";
 
 const mockedAxios: () => AxiosStatic | any = () => {
     const bag = {

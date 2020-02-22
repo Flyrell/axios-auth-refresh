@@ -8,7 +8,7 @@
         "lib": ["dom", "es5", "es2018"]
     },
     "include": [
-        "./src/**/*"
+        "./src/index.ts"
     ],
     "exclude": [
         "./src/**/__tests__"
