@@ -58,22 +58,22 @@ const sleep = (ms) => {
 
 describe('Merges configs', () => {
 
-    it('master and slave are the same', () => {
-        const master: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        const slave: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        expect(mergeOptions(slave, master)).toEqual({ statusCodes: [ 204 ] });
+    it('source and target are the same', () => {
+        const source: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
+        const target: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
+        expect(mergeOptions(target, source)).toEqual({ statusCodes: [ 204 ] });
     });
 
-    it('master is different than the slave', () => {
-        const master: AxiosAuthRefreshOptions = { statusCodes: [ 302 ] };
-        const slave: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        expect(mergeOptions(slave, master)).toEqual({ statusCodes: [ 302 ] });
+    it('source is different than the target', () => {
+        const source: AxiosAuthRefreshOptions = { statusCodes: [ 302 ] };
+        const target: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
+        expect(mergeOptions(target, source)).toEqual({ statusCodes: [ 302 ] });
     });
 
-    it('master is empty', () => {
-        const master: AxiosAuthRefreshOptions = {};
-        const slave: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        expect(mergeOptions(slave, master)).toEqual({ statusCodes: [ 204 ] });
+    it('source is empty', () => {
+        const source: AxiosAuthRefreshOptions = {};
+        const target: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
+        expect(mergeOptions(target, source)).toEqual({ statusCodes: [ 204 ] });
     });
 });
 
