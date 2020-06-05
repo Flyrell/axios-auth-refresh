@@ -173,5 +173,5 @@ Check out [contribution guide](CONTRIBUTING.md) or my [patreon page!](https://ww
 
 ---
 
-#### Special thanks to [JetBrains](https://www.jetbrains.com/?from=axios-auth-refresh) for providing the IDE for out library
+#### Special thanks to [JetBrains](https://www.jetbrains.com/?from=axios-auth-refresh) for providing the IDE for our library
 <a href="https://www.jetbrains.com/?from=axios-auth-refresh" title="Link to JetBrains"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/JetBrains_Logo_2016.svg/128px-JetBrains_Logo_2016.svg.png" alt="JetBrains"></a>
