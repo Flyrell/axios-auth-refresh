@@ -1,4 +1,6 @@
-if: branch = master
+branches:
+  only:
+    - master
 
 language: node_js
 
