@@ -13,15 +13,15 @@ export const defaultOptions: AxiosAuthRefreshOptions = {
 };
 
 /**
- * Merges two options objects (master rewrites slave).
+ * Merges two options objects (source rewrites target).
  *
  * @return {AxiosAuthRefreshOptions}
  */
 export function mergeOptions(
-    slave: AxiosAuthRefreshOptions,
-    master: AxiosAuthRefreshOptions,
+    target: AxiosAuthRefreshOptions,
+    source: AxiosAuthRefreshOptions,
 ): AxiosAuthRefreshOptions {
-  return { ...slave, ...master };
+  return { ...target, ...source };
 }
 
 /**
