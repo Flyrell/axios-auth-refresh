@@ -8,7 +8,8 @@ module.exports = {
     output: {
         filename: 'index.min.js',
         library: 'axios-auth-refresh',
-        libraryTarget: 'commonjs2'
+        libraryTarget: 'umd',
+        globalObject: 'this'
     },
     resolve: {
         extensions: [".ts", ".tsx", ".js"]
