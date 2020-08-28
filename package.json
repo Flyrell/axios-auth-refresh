@@ -24,11 +24,11 @@
         "test-coverage": "jest --coverage"
     },
     "peerDependencies": {
-        "axios": "~0.18.0 || ~0.19.1"
+        "axios": "~0.18.0 || ~0.19.1 || ~0.20.0"
     },
     "devDependencies": {
         "@types/jest": "^24.9.1",
-        "axios": "^0.19.2",
+        "axios": "^0.20.0",
         "babel-loader": "^8.1.0",
         "clean-webpack-plugin": "^3.0.0",
         "declaration-bundler-webpack-plugin": "^1.0.3",
