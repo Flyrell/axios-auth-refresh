@@ -49,7 +49,7 @@ In order to activate the interceptors, you need to import a function from `axios
 which is *exported by default* and call it with the **axios instance** you want the interceptors for, 
 as well as the **refresh authorization function** where you need to write the logic for refreshing the authorization.
 
-The interceptors will then be bound onto the axios instance and the specified logic will be run whenever a [401 (Unauthorized)](https://httpstatuses.com/401) status code 
+The interceptors will then be bound onto the axios instance, and the specified logic will be run whenever a [401 (Unauthorized)](https://httpstatuses.com/401) status code 
 is returned from a server (or any other status code you provide in options). All the new requests created while the refreshAuthLogic has been processing will be bound onto the 
 Promise returned from the refreshAuthLogic function. This means that the requests will be resolved when a new access token has been fetched or when the refreshing logic faleid.
 
@@ -144,17 +144,22 @@ stalled request is called with the request configuration object.
 }
 ```
 
-#### Unpause the instance while refreshing
+#### Pause the instance while "refresh logic" is running
 
-While your refresh logic is ran, the instance is marked as "to-be-skipped"
-in order to prevent the "interceptors loop" when refreshing causes one of the statuses specified
-in `options.statusCodes`. If that's behavior is not wanted, you can set the `skipWhileRefreshing` option to false,
-but keep in mind that you need to implement skipping the requests by yourself using `skipAuthRefresh` flag
-in request's configuration
+While your refresh logic is running, the interceptor will be triggered for every request
+which returns one of the `options.statusCodes` specified (HTTP 401 by default).
+
+In order to prevent the interceptors loop (when your refresh logic fails with any of the status
+codes specified in `options.statusCodes`) you need to use a [`skipAuthRefresh`](#skipping-the-interceptor)
+flag on your refreshing call inside the `refreshAuthLogic` function.
+
+In case your refresh logic does not make any calls, you should consider using the following flag
+when initializing the interceptor to pause the whole axios instance while the refreshing is pending.
+This prevents interceptor from running for each failed request.
 
 ```javascript
 {
-    skipWhileRefreshing: false // default: true
+    pauseInstanceWhileRefreshing: true // default: false
 }
 ```
 
@@ -165,6 +170,14 @@ This library has also been used for:
 - OTP challenges with Google2FA by [@LeoniePhiline](https://github.com/LeoniePhiline)
 
 have you used it for something else? Create a PR with your use case to share it.
+
+---
+
+### Changelog
+
+- **v3.0.0**
+  - `skipWhileRefresh` flag has been deprecated due to its unclear name and its logic has been moved to `pauseInstanceWhileRefreshing` flag
+  - `pauseInstanceWhileRefreshing` is set to `false` by default
 
 ---
 

@@ -77,10 +77,6 @@ describe('Merges configs', () => {
     });
 });
 
-describe('Uses options correctly', () => {
-
-});
-
 describe('Determines if the response should be intercepted', () => {
 
     let cache: AxiosAuthRefreshCache = undefined;
@@ -132,6 +128,30 @@ describe('Determines if the response should be intercepted', () => {
             config: { skipAuthRefresh: false }
         };
         expect(shouldInterceptError(error, options, axios, cache)).toBeTruthy();
+    });
+
+    it('when pauseInstanceWhileRefreshing flag is not provided', () => {
+        const error = {
+            response: { status: 401 },
+        };
+        expect(shouldInterceptError(error, options, axios, cache)).toBeTruthy();
+    });
+
+    it('when pauseInstanceWhileRefreshing flag is set to true', () => {
+        const error = {
+            response: { status: 401 },
+        };
+        const newCache = { ...cache, skipInstances: [ axios ] };
+        const newOptions = { ...options, pauseInstanceWhileRefreshing: true };
+        expect(shouldInterceptError(error, newOptions, axios, newCache)).toBeFalsy();
+    });
+
+    it('when pauseInstanceWhileRefreshing flag is set to false', () => {
+        const error = {
+            response: { status: 401 },
+        };
+        const newOptions = { ...options, pauseInstanceWhileRefreshing: false };
+        expect(shouldInterceptError(error, newOptions, axios, cache)).toBeTruthy();
     });
 });
 

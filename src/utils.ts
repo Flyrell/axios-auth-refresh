@@ -1,5 +1,5 @@
-import { AxiosAuthRefreshOptions } from "./index";
-import axios, { AxiosInstance, AxiosPromise } from "axios";
+import { AxiosAuthRefreshOptions } from './index';
+import axios, { AxiosInstance, AxiosPromise } from 'axios';
 
 export interface AxiosAuthRefreshCache {
   skipInstances: AxiosInstance[];
@@ -9,19 +9,23 @@ export interface AxiosAuthRefreshCache {
 
 export const defaultOptions: AxiosAuthRefreshOptions = {
   statusCodes: [ 401 ],
-  skipWhileRefreshing: true,
+  pauseInstanceWhileRefreshing: false,
 };
 
 /**
- * Merges two options objects (source rewrites target).
+ * Merges two options objects (options overwrites defaults).
  *
  * @return {AxiosAuthRefreshOptions}
  */
 export function mergeOptions(
-    target: AxiosAuthRefreshOptions,
-    source: AxiosAuthRefreshOptions,
+  defaults: AxiosAuthRefreshOptions,
+    options: AxiosAuthRefreshOptions,
 ): AxiosAuthRefreshOptions {
-  return { ...target, ...source };
+  return {
+    ...defaults,
+    pauseInstanceWhileRefreshing: options.skipWhileRefreshing,
+    ...options,
+  };
 }
 
 /**
@@ -40,7 +44,7 @@ export function shouldInterceptError(
     return false;
   }
 
-  if (error.config && error.config.skipAuthRefresh) {
+  if (error.config?.skipAuthRefresh) {
     return false;
   }
 
@@ -48,7 +52,7 @@ export function shouldInterceptError(
     return false;
   }
 
-  return !options.skipWhileRefreshing || !cache.skipInstances.includes(instance);
+  return !options.pauseInstanceWhileRefreshing || !cache.skipInstances.includes(instance);
 }
 
 /**
