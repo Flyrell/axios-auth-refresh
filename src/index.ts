@@ -9,12 +9,18 @@ import {
     shouldInterceptError,
     AxiosAuthRefreshCache,
     createRequestQueueInterceptor,
-} from "./utils";
+} from './utils';
 
 export interface AxiosAuthRefreshOptions {
     statusCodes?: Array<number>;
     retryInstance?: AxiosInstance;
+    /**
+     * @deprecated
+     * This flag has been deprecated in favor of `pauseInstanceWhileRefreshing` flag.
+     * Use `pauseInstanceWhileRefreshing` instead.
+     */
     skipWhileRefreshing?: boolean;
+    pauseInstanceWhileRefreshing?: boolean;
     onRetry?: (requestConfig: AxiosRequestConfig) => AxiosRequestConfig
 }
 
@@ -60,7 +66,9 @@ export default function createAuthRefreshInterceptor(
             return Promise.reject(error);
         }
 
-        cache.skipInstances.push(instance);
+        if (options.pauseInstanceWhileRefreshing) {
+            cache.skipInstances.push(instance);
+        }
 
         // If refresh call does not exist, create one
         const refreshing = createRefreshCall(error, refreshAuthCall, cache);
