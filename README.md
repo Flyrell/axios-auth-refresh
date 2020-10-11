@@ -51,7 +51,7 @@ as well as the **refresh authorization function** where you need to write the lo
 
 The interceptors will then be bound onto the axios instance, and the specified logic will be run whenever a [401 (Unauthorized)](https://httpstatuses.com/401) status code 
 is returned from a server (or any other status code you provide in options). All the new requests created while the refreshAuthLogic has been processing will be bound onto the 
-Promise returned from the refreshAuthLogic function. This means that the requests will be resolved when a new access token has been fetched or when the refreshing logic faleid.
+Promise returned from the refreshAuthLogic function. This means that the requests will be resolved when a new access token has been fetched or when the refreshing logic failed.
 
 ```javascript
 import axios from 'axios';
