@@ -87,7 +87,7 @@ export function createRequestQueueInterceptor(
 ): number {
   if (typeof cache.requestQueueInterceptorId === 'undefined') {
     cache.requestQueueInterceptorId = instance.interceptors.request.use((request) => {
-      if(request.data.skipAuthRefresh)
+      if(request.data && request.data.skipAuthRefresh)
         return request
       return cache.refreshCall
           .catch(() => {
