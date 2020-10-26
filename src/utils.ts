@@ -7,6 +7,10 @@ export interface AxiosAuthRefreshCache {
   requestQueueInterceptorId: number|undefined;
 }
 
+export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+    skipAuthRefresh?: boolean
+}
+
 export const defaultOptions: AxiosAuthRefreshOptions = {
   statusCodes: [ 401 ],
   pauseInstanceWhileRefreshing: false,
@@ -86,8 +90,8 @@ export function createRequestQueueInterceptor(
     options: AxiosAuthRefreshOptions,
 ): number {
   if (typeof cache.requestQueueInterceptorId === 'undefined') {
-    cache.requestQueueInterceptorId = instance.interceptors.request.use((request) => {
-      if(request.data && request.data.skipAuthRefresh)
+    cache.requestQueueInterceptorId = instance.interceptors.request.use((request: CustomAxiosRequestConfig) => {
+      if(request?.skipAuthRefresh)
         return request
       return cache.refreshCall
           .catch(() => {
