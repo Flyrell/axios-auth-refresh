@@ -163,6 +163,22 @@ This prevents interceptor from running for each failed request.
 }
 ```
 
+#### Intercept on network error
+
+Some CORS APIs may not return CORS response headers when an HTTP 401 Unauthorized response is returned.
+In this scenario, the browser won't be able to read the response headers to determine the response status code.
+
+To intercept *any* network error, enable the `interceptNetworkError` option.
+
+CAUTION: This should be used as a last resort. If this is used to work around an API that doesn't support CORS
+with an HTTP 401 response, your retry logic can test for network connectivity attempting refresh authentication.
+
+```javascript
+{
+    interceptNetworkError: true // default: undefined
+}
+```
+
 ### Other usages of the library
 This library has also been used for:
 
