@@ -48,8 +48,18 @@ export function shouldInterceptError(
     return false;
   }
 
-  if (!error.response || !options.statusCodes.includes(parseInt(error.response.status))) {
+  if (
+    !(options.interceptNetworkError && !error.response && error.request.status === 0) &&
+    (!error.response || !options.statusCodes?.includes(parseInt(error.response.status)))
+  ) {
     return false;
+  }
+
+  // Copy config to response if there's a network error, so config can be modified and used in the retry
+  if (!error.response) {
+    error.response = {
+      config: error.config,
+    };
   }
 
   return !options.pauseInstanceWhileRefreshing || !cache.skipInstances.includes(instance);

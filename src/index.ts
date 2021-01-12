@@ -21,6 +21,7 @@ export interface AxiosAuthRefreshOptions {
      */
     skipWhileRefreshing?: boolean;
     pauseInstanceWhileRefreshing?: boolean;
+    interceptNetworkError?: boolean;
     onRetry?: (requestConfig: AxiosRequestConfig) => AxiosRequestConfig
 }
 
