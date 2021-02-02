@@ -191,6 +191,10 @@ have you used it for something else? Create a PR with your use case to share it.
 
 ### Changelog
 
+- **v3.1.0**
+  - axios v0.21.1 support
+  - `interceptNetworkError` option introduced. See [#133](https://github.com/Flyrell/axios-auth-refresh/issues/133).
+
 - **v3.0.0**
   - `skipWhileRefresh` flag has been deprecated due to its unclear name and its logic has been moved to `pauseInstanceWhileRefreshing` flag
   - `pauseInstanceWhileRefreshing` is set to `false` by default
