@@ -1,11 +1,5 @@
-import { AxiosAuthRefreshOptions } from './index';
 import axios, { AxiosInstance, AxiosPromise } from 'axios';
-
-export interface AxiosAuthRefreshCache {
-  skipInstances: AxiosInstance[];
-  refreshCall: Promise<any>|undefined;
-  requestQueueInterceptorId: number|undefined;
-}
+import { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
 
 export const defaultOptions: AxiosAuthRefreshOptions = {
   statusCodes: [ 401 ],
