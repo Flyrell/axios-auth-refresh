@@ -1,4 +1,5 @@
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosInstance, AxiosResponse } from 'axios';
+import { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
 import {
     unsetCache,
     mergeOptions,
@@ -7,33 +8,10 @@ import {
     createRefreshCall,
     resendFailedRequest,
     shouldInterceptError,
-    AxiosAuthRefreshCache,
     createRequestQueueInterceptor,
 } from './utils';
 
-export interface AxiosAuthRefreshOptions {
-    statusCodes?: Array<number>;
-    retryInstance?: AxiosInstance;
-    /**
-     * @deprecated
-     * This flag has been deprecated in favor of `pauseInstanceWhileRefreshing` flag.
-     * Use `pauseInstanceWhileRefreshing` instead.
-     */
-    skipWhileRefreshing?: boolean;
-    pauseInstanceWhileRefreshing?: boolean;
-    interceptNetworkError?: boolean;
-    onRetry?: (requestConfig: AxiosRequestConfig) => AxiosRequestConfig
-}
-
-export interface AxiosAuthRefreshRequestConfig extends AxiosRequestConfig {
-    skipAuthRefresh?: boolean;
-}
-
-const cache: AxiosAuthRefreshCache = {
-    skipInstances: [],
-    refreshCall: undefined,
-    requestQueueInterceptorId: undefined,
-};
+export { AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from './model';
 
 /**
  * Creates an authentication refresh interceptor that binds to any error response.
@@ -55,9 +33,16 @@ export default function createAuthRefreshInterceptor(
     refreshAuthCall: (error: any) => Promise<any>,
     options: AxiosAuthRefreshOptions = {},
 ): number {
+
     if (typeof refreshAuthCall !== 'function') {
         throw new Error('axios-auth-refresh requires `refreshAuthCall` to be a function that returns a promise.');
     }
+
+    const cache: AxiosAuthRefreshCache = {
+        skipInstances: [],
+        refreshCall: undefined,
+        requestQueueInterceptorId: undefined,
+    };
 
     return instance.interceptors.response.use((response: AxiosResponse) => response, (error: any) => {
 

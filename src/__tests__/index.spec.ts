@@ -1,3 +1,4 @@
+import { AxiosAuthRefreshCache } from "../model";
 import axios, { AxiosRequestConfig, AxiosStatic } from 'axios';
 import createAuthRefreshInterceptor, { AxiosAuthRefreshOptions } from "../index";
 import {
@@ -7,7 +8,6 @@ import {
     getRetryInstance,
     createRefreshCall,
     shouldInterceptError,
-    AxiosAuthRefreshCache,
     createRequestQueueInterceptor,
 } from "../utils";
 
