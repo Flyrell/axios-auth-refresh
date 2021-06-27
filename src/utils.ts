@@ -93,7 +93,7 @@ export function createRequestQueueInterceptor(
     cache: AxiosAuthRefreshCache,
     options: AxiosAuthRefreshOptions,
 ): number {
-  if (typeof cache.requestQueueInterceptorId === 'undefined') {
+  if (typeof cache.requestQueueInterceptorId === undefined) {
     cache.requestQueueInterceptorId = instance.interceptors.request.use((request: CustomAxiosRequestConfig) => {
       if(request?.skipAuthRefresh)
         return request
