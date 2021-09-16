@@ -1,4 +1,4 @@
-import { AxiosAuthRefreshCache } from "../model";
+import { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
 import axios, { AxiosRequestConfig, AxiosStatic } from 'axios';
 import createAuthRefreshInterceptor, { AxiosAuthRefreshOptions } from "../index";
 import {
@@ -244,6 +244,24 @@ describe('Requests interceptor', () => {
             }, cache);
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
+        } catch (e) {
+            expect(e).toBeFalsy();
+        }
+    });
+
+    it('doesn\'t intercept skipped request', async () => {
+        try {
+            let refreshed = 0;
+            const instance = axios.create();
+            createRequestQueueInterceptor(instance, cache, {});
+            createRefreshCall({}, async () => {
+                await sleep(400);
+                ++refreshed;
+            }, cache);
+            await instance.get('http://example.com')
+              .then(() => expect(refreshed).toBe(1));
+            await instance.get('http://example.com', <AxiosAuthRefreshRequestConfig>{ skipAuthRefresh: true })
+              .then(() => expect(refreshed).toBe(1));
         } catch (e) {
             expect(e).toBeFalsy();
         }
