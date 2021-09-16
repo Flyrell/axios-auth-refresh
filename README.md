@@ -64,7 +64,7 @@ const refreshAuthLogic = failedRequest => axios.post('https://www.example.com/au
     return Promise.resolve();
 });
 
-// Instantiate the interceptor (you can chain it as it returns the axios instance)
+// Instantiate the interceptor
 createAuthRefreshInterceptor(axios, refreshAuthLogic);
 
 // Make a call. If it returns a 401 error, the refreshAuthLogic will be run, 
