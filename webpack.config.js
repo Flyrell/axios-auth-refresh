@@ -1,3 +1,4 @@
+const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
@@ -6,9 +7,12 @@ module.exports = {
     entry: "./src/index.ts",
     externals: [ 'axios' ],
     output: {
+        path: path.resolve(__dirname, 'dist'),
         filename: 'index.min.js',
-        library: 'axios-auth-refresh',
-        libraryTarget: 'umd',
+        library: {
+            name: 'axios-auth-refresh',
+            type: 'umd'
+        },
         globalObject: 'this'
     },
     resolve: {
@@ -16,12 +20,12 @@ module.exports = {
     },
     module: {
         rules: [
-            { test: /\.tsx?$/, exclude: "/node-modules/", loader: "ts-loader" }
+            { test: /\.tsx?$/, loader: "ts-loader" }
         ]
     },
     optimization: {
         minimize: true,
-        minimizer: [new TerserPlugin({ sourceMap: false })],
+        minimizer: [new TerserPlugin()],
     },
     plugins: [
         new CleanWebpackPlugin()
