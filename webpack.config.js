@@ -3,7 +3,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-    devtool: "inline-source-map",
+    devtool: "hidden-source-map",
     entry: "./src/index.ts",
     externals: [ 'axios' ],
     output: {
@@ -16,7 +16,7 @@ module.exports = {
         globalObject: 'this'
     },
     resolve: {
-        extensions: [".ts", ".tsx", ".js"]
+        extensions: [".ts"]
     },
     module: {
         rules: [
