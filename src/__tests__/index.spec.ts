@@ -153,6 +153,22 @@ describe('Determines if the response should be intercepted', () => {
         const newOptions = { ...options, pauseInstanceWhileRefreshing: false };
         expect(shouldInterceptError(error, newOptions, axios, cache)).toBeTruthy();
     });
+
+    it('when shouldRefresh return true', () => {
+        const error = {
+            response: { status: 401 },
+        };
+        const newOptions:AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => true};
+        expect(shouldInterceptError(error, newOptions, axios, cache)).toBeTruthy();
+    });
+
+    it('when shouldRefresh return false', () => {
+        const error = {
+            response: { status: 401 },
+        };
+        const newOptions:AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => false};
+        expect(shouldInterceptError(error, newOptions, axios, cache)).toBeFalsy();
+    });
 });
 
 describe('Creates refresh call', () => {
