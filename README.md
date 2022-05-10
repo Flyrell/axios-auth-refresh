@@ -121,6 +121,15 @@ You can specify multiple status codes that you want the interceptor to run for.
     statusCodes: [ 401, 403 ] // default: [ 401 ]
 }
 ```
+#### Customize intercept logic
+
+You can specify multiple status codes that you want the interceptor to run for.
+
+```javascript
+{
+    shouldRefresh: (error) => error?.response?.data?.business_error_code === 100385
+}
+```
 
 #### Retry instance for stalled requests
 

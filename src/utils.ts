@@ -48,7 +48,9 @@ export function shouldInterceptError(
 
   if (
     !(options.interceptNetworkError && !error.response && error.request.status === 0) &&
-    (!error.response || !options.statusCodes?.includes(parseInt(error.response.status)))
+    (!error.response || (options?.shouldRefresh
+      ? !options.shouldRefresh(error)
+      : !options.statusCodes?.includes(parseInt(error.response.status))))
   ) {
     return false;
   }
