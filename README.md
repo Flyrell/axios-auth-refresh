@@ -125,7 +125,7 @@ You can specify multiple status codes that you want the interceptor to run for.
 
 ```javascript
 {
-    statusCodes: [401, 403]; // default: [ 401 ]
+    statusCodes: [401, 403], // default: [ 401 ]
 }
 ```
 
@@ -135,7 +135,8 @@ You can specify multiple status codes that you want the interceptor to run for.
 
 ```javascript
 {
-    shouldRefresh: (error) => error?.response?.data?.business_error_code === 100385;
+    shouldRefresh: (error) =>
+        error?.response?.data?.business_error_code === 100385,
 }
 ```
 
@@ -146,7 +147,7 @@ Default value is `undefined` and the instance passed to `createAuthRefreshInterc
 
 ```javascript
 {
-    retryInstance: someAxiosInstance; // default: undefined
+    retryInstance: someAxiosInstance, // default: undefined
 }
 ```
 
@@ -157,7 +158,7 @@ stalled request is called with the request configuration object.
 
 ```javascript
 {
-    onRetry: (requestConfig) => ({ ...requestConfig, baseURL: '' }); // default: undefined
+    onRetry: (requestConfig) => ({ ...requestConfig, baseURL: '' }), // default: undefined
 }
 ```
 
@@ -176,7 +177,7 @@ This prevents interceptor from running for each failed request.
 
 ```javascript
 {
-    pauseInstanceWhileRefreshing: true; // default: false
+    pauseInstanceWhileRefreshing: true, // default: false
 }
 ```
 
@@ -192,7 +193,7 @@ with an HTTP 401 response, your retry logic can test for network connectivity at
 
 ```javascript
 {
-    interceptNetworkError: true; // default: undefined
+    interceptNetworkError: true, // default: undefined
 }
 ```
 
