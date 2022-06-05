@@ -31,9 +31,8 @@ export { AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from './model'
 export default function createAuthRefreshInterceptor(
     instance: AxiosInstance,
     refreshAuthCall: (error: any) => Promise<any>,
-    options: AxiosAuthRefreshOptions = {},
+    options: AxiosAuthRefreshOptions = {}
 ): number {
-
     if (typeof refreshAuthCall !== 'function') {
         throw new Error('axios-auth-refresh requires `refreshAuthCall` to be a function that returns a promise.');
     }
@@ -44,27 +43,29 @@ export default function createAuthRefreshInterceptor(
         requestQueueInterceptorId: undefined,
     };
 
-    return instance.interceptors.response.use((response: AxiosResponse) => response, (error: any) => {
+    return instance.interceptors.response.use(
+        (response: AxiosResponse) => response,
+        (error: any) => {
+            options = mergeOptions(defaultOptions, options);
 
-        options = mergeOptions(defaultOptions, options);
+            if (!shouldInterceptError(error, options, instance, cache)) {
+                return Promise.reject(error);
+            }
 
-        if (!shouldInterceptError(error, options, instance, cache)) {
-            return Promise.reject(error);
+            if (options.pauseInstanceWhileRefreshing) {
+                cache.skipInstances.push(instance);
+            }
+
+            // If refresh call does not exist, create one
+            const refreshing = createRefreshCall(error, refreshAuthCall, cache);
+
+            // Create interceptor that will bind all the others requests until refreshAuthCall is resolved
+            createRequestQueueInterceptor(instance, cache, options);
+
+            return refreshing
+                .finally(() => unsetCache(instance, cache))
+                .catch((error) => Promise.reject(error))
+                .then(() => resendFailedRequest(error, getRetryInstance(instance, options)));
         }
-
-        if (options.pauseInstanceWhileRefreshing) {
-            cache.skipInstances.push(instance);
-        }
-
-        // If refresh call does not exist, create one
-        const refreshing = createRefreshCall(error, refreshAuthCall, cache);
-
-        // Create interceptor that will bind all the others requests until refreshAuthCall is resolved
-        createRequestQueueInterceptor(instance, cache, options);
-
-        return refreshing
-            .finally(() => unsetCache(instance, cache))
-            .catch(error => Promise.reject(error))
-            .then(() => resendFailedRequest(error, getRetryInstance(instance, options)));
-    });
+    );
 }

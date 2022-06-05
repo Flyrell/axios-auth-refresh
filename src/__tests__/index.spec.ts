@@ -1,6 +1,6 @@
 import { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
 import axios, { AxiosRequestConfig, AxiosStatic } from 'axios';
-import createAuthRefreshInterceptor, { AxiosAuthRefreshOptions } from "../index";
+import createAuthRefreshInterceptor, { AxiosAuthRefreshOptions } from '../index';
 import {
     unsetCache,
     mergeOptions,
@@ -9,13 +9,13 @@ import {
     createRefreshCall,
     shouldInterceptError,
     createRequestQueueInterceptor,
-} from "../utils";
+} from '../utils';
 
 const mockedAxios: () => AxiosStatic | any = () => {
     const bag = {
         request: [],
         response: [],
-        has: jest.fn((type: 'request'|'response', id: number) => bag[type].includes(id))
+        has: jest.fn((type: 'request' | 'response', id: number) => bag[type].includes(id)),
     };
     return {
         interceptors: {
@@ -26,8 +26,8 @@ const mockedAxios: () => AxiosStatic | any = () => {
                     return i;
                 }),
                 eject: jest.fn((i) => {
-                    bag.request = bag.request.filter(n => n !== i);
-                })
+                    bag.request = bag.request.filter((n) => n !== i);
+                }),
             },
             response: {
                 use: jest.fn(() => {
@@ -36,14 +36,14 @@ const mockedAxios: () => AxiosStatic | any = () => {
                     return i;
                 }),
                 eject: jest.fn((i) => {
-                    bag.response = bag.response.filter(n => n !== i);
-                })
+                    bag.response = bag.response.filter((n) => n !== i);
+                }),
             },
-            has: bag.has
+            has: bag.has,
         },
         defaults: {
-            params: {}
-        }
+            params: {},
+        },
     };
 };
 
@@ -57,38 +57,36 @@ const sleep = (ms) => {
 };
 
 describe('Merges configs', () => {
-
     it('source and target are the same', () => {
-        const source: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        const target: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        expect(mergeOptions(target, source)).toEqual({ statusCodes: [ 204 ] });
+        const source: AxiosAuthRefreshOptions = { statusCodes: [204] };
+        const target: AxiosAuthRefreshOptions = { statusCodes: [204] };
+        expect(mergeOptions(target, source)).toEqual({ statusCodes: [204] });
     });
 
     it('source is different than the target', () => {
-        const source: AxiosAuthRefreshOptions = { statusCodes: [ 302 ] };
-        const target: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        expect(mergeOptions(target, source)).toEqual({ statusCodes: [ 302 ] });
+        const source: AxiosAuthRefreshOptions = { statusCodes: [302] };
+        const target: AxiosAuthRefreshOptions = { statusCodes: [204] };
+        expect(mergeOptions(target, source)).toEqual({ statusCodes: [302] });
     });
 
     it('source is empty', () => {
         const source: AxiosAuthRefreshOptions = {};
-        const target: AxiosAuthRefreshOptions = { statusCodes: [ 204 ] };
-        expect(mergeOptions(target, source)).toEqual({ statusCodes: [ 204 ] });
+        const target: AxiosAuthRefreshOptions = { statusCodes: [204] };
+        expect(mergeOptions(target, source)).toEqual({ statusCodes: [204] });
     });
 });
 
 describe('Determines if the response should be intercepted', () => {
-
     let cache: AxiosAuthRefreshCache = undefined;
     beforeEach(() => {
         cache = {
             skipInstances: [],
             refreshCall: undefined,
-            requestQueueInterceptorId: undefined
+            requestQueueInterceptorId: undefined,
         };
     });
 
-    const options = { statusCodes: [ 401 ] };
+    const options = { statusCodes: [401] };
 
     it('no error object provided', () => {
         expect(shouldInterceptError(undefined, options, axios, cache)).toBeFalsy();
@@ -117,7 +115,7 @@ describe('Determines if the response should be intercepted', () => {
     it('when skipAuthRefresh flag is set ot true', () => {
         const error = {
             response: { status: 401 },
-            config: { skipAuthRefresh: true }
+            config: { skipAuthRefresh: true },
         };
         expect(shouldInterceptError(error, options, axios, cache)).toBeFalsy();
     });
@@ -125,7 +123,7 @@ describe('Determines if the response should be intercepted', () => {
     it('when skipAuthRefresh flag is set to false', () => {
         const error = {
             response: { status: 401 },
-            config: { skipAuthRefresh: false }
+            config: { skipAuthRefresh: false },
         };
         expect(shouldInterceptError(error, options, axios, cache)).toBeTruthy();
     });
@@ -141,7 +139,7 @@ describe('Determines if the response should be intercepted', () => {
         const error = {
             response: { status: 401 },
         };
-        const newCache = { ...cache, skipInstances: [ axios ] };
+        const newCache = { ...cache, skipInstances: [axios] };
         const newOptions = { ...options, pauseInstanceWhileRefreshing: true };
         expect(shouldInterceptError(error, newOptions, axios, newCache)).toBeFalsy();
     });
@@ -158,7 +156,7 @@ describe('Determines if the response should be intercepted', () => {
         const error = {
             response: { status: 401 },
         };
-        const newOptions:AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => true};
+        const newOptions: AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => true };
         expect(shouldInterceptError(error, newOptions, axios, cache)).toBeTruthy();
     });
 
@@ -166,24 +164,22 @@ describe('Determines if the response should be intercepted', () => {
         const error = {
             response: { status: 401 },
         };
-        const newOptions:AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => false};
+        const newOptions: AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => false };
         expect(shouldInterceptError(error, newOptions, axios, cache)).toBeFalsy();
     });
 });
 
 describe('Creates refresh call', () => {
-
     let cache: AxiosAuthRefreshCache = undefined;
     beforeEach(() => {
         cache = {
             skipInstances: [],
             refreshCall: undefined,
-            requestQueueInterceptorId: undefined
+            requestQueueInterceptorId: undefined,
         };
     });
 
     it('warns if refreshTokenCall does not return a promise', async () => {
-
         // Just so we don't trigger the console.warn (looks better in terminal)
         const tmp = console.warn;
         const mocked = jest.fn();
@@ -224,13 +220,12 @@ describe('Creates refresh call', () => {
 });
 
 describe('Requests interceptor', () => {
-
     let cache: AxiosAuthRefreshCache = undefined;
     beforeEach(() => {
         cache = {
             skipInstances: [],
             refreshCall: undefined,
-            requestQueueInterceptorId: undefined
+            requestQueueInterceptorId: undefined,
         };
     });
 
@@ -254,10 +249,14 @@ describe('Requests interceptor', () => {
             let refreshed = 0;
             const instance = axios.create();
             createRequestQueueInterceptor(instance, cache, {});
-            createRefreshCall({}, async () => {
-                await sleep(400);
-                ++refreshed;
-            }, cache);
+            createRefreshCall(
+                {},
+                async () => {
+                    await sleep(400);
+                    ++refreshed;
+                },
+                cache
+            );
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
         } catch (e) {
@@ -265,19 +264,23 @@ describe('Requests interceptor', () => {
         }
     });
 
-    it('doesn\'t intercept skipped request', async () => {
+    it("doesn't intercept skipped request", async () => {
         try {
             let refreshed = 0;
             const instance = axios.create();
             createRequestQueueInterceptor(instance, cache, {});
-            createRefreshCall({}, async () => {
-                await sleep(400);
-                ++refreshed;
-            }, cache);
-            await instance.get('http://example.com')
-              .then(() => expect(refreshed).toBe(1));
-            await instance.get('http://example.com', <AxiosAuthRefreshRequestConfig>{ skipAuthRefresh: true })
-              .then(() => expect(refreshed).toBe(1));
+            createRefreshCall(
+                {},
+                async () => {
+                    await sleep(400);
+                    ++refreshed;
+                },
+                cache
+            );
+            await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
+            await instance
+                .get('http://example.com', <AxiosAuthRefreshRequestConfig>{ skipAuthRefresh: true })
+                .then(() => expect(refreshed).toBe(1));
         } catch (e) {
             expect(e).toBeFalsy();
         }
@@ -285,15 +288,26 @@ describe('Requests interceptor', () => {
 
     it('cancels all requests when refreshing call failed', async () => {
         try {
-            let passed = 0, caught = 0;
+            let passed = 0,
+                caught = 0;
             const instance = axios.create();
             createRequestQueueInterceptor(instance, cache, {});
-            createRefreshCall({}, async () => {
-                await sleep(500);
-                return Promise.reject();
-            }, cache);
-            await instance.get('http://example.com').then(() => ++passed).catch(() => ++caught);
-            await instance.get('http://example.com').then(() => ++passed).catch(() => ++caught);
+            createRefreshCall(
+                {},
+                async () => {
+                    await sleep(500);
+                    return Promise.reject();
+                },
+                cache
+            );
+            await instance
+                .get('http://example.com')
+                .then(() => ++passed)
+                .catch(() => ++caught);
+            await instance
+                .get('http://example.com')
+                .then(() => ++passed)
+                .catch(() => ++caught);
             expect(passed).toBe(0);
             expect(caught).toBe(2);
         } catch (e) {
@@ -317,17 +331,20 @@ describe('Requests interceptor', () => {
         const instance = axios.create();
         const onRetry = jest.fn((requestConfig: AxiosRequestConfig) => requestConfig);
         createRequestQueueInterceptor(instance, cache, { onRetry });
-        createRefreshCall({}, async () => {
-            await sleep(500);
-            return Promise.resolve();
-        }, cache);
+        createRefreshCall(
+            {},
+            async () => {
+                await sleep(500);
+                return Promise.resolve();
+            },
+            cache
+        );
         await instance.get('http://example.com');
         expect(onRetry).toHaveBeenCalled();
     });
 });
 
 describe('Creates the overall interceptor correctly', () => {
-
     it('throws error when no function provided', () => {
         expect(() => createAuthRefreshInterceptor(axios, null)).toThrow();
     });
@@ -341,11 +358,11 @@ describe('Creates the overall interceptor correctly', () => {
     it('does not change the interceptors queue', async () => {
         try {
             const instance = axios.create();
-            const id = createAuthRefreshInterceptor(
-                axios,
-                () => instance.get('https://httpstat.us/200')
+            const id = createAuthRefreshInterceptor(axios, () => instance.get('https://httpstat.us/200'));
+            const id2 = instance.interceptors.response.use(
+                (req) => req,
+                (error) => Promise.reject(error)
             );
-            const id2 = instance.interceptors.response.use(req => req, error => Promise.reject(error));
             const interceptor1 = instance.interceptors.response['handlers'][id];
             const interceptor2 = instance.interceptors.response['handlers'][id2];
             try {
@@ -364,11 +381,10 @@ describe('Creates the overall interceptor correctly', () => {
 });
 
 describe('State is cleared', () => {
-
     const cache: AxiosAuthRefreshCache = {
         skipInstances: [],
         refreshCall: undefined,
-        requestQueueInterceptorId: undefined
+        requestQueueInterceptorId: undefined,
     };
 
     it('after refreshing call succeeds/fails', () => {
