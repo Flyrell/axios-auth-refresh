@@ -1,27 +1,27 @@
 branches:
-  only:
-    - master
-    - /^v.*$/
+    only:
+        - master
+        - /^v.*$/
 
 language: node_js
 
 node_js:
-  - "stable"
+    - 'stable'
 
 cache:
-  directories:
-    - node_modules
+    directories:
+        - node_modules
 
 script:
-  - "npm test"
+    - 'npm test'
 
 before_deploy:
-  - "npm run build"
+    - 'npm run build'
 
 deploy:
-  edge: true
-  provider: npm
-  email: "$NPM_EMAIL"
-  api_key: "$NPM_API_TOKEN"
-  on:
-    tags: true
+    edge: true
+    provider: npm
+    email: '$NPM_EMAIL'
+    api_key: '$NPM_API_TOKEN'
+    on:
+        tags: true

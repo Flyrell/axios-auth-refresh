@@ -6,10 +6,6 @@
         "declaration": true,
         "module": "commonjs"
     },
-    "include": [
-        "./src/index.ts"
-    ],
-    "exclude": [
-        "./src/**/__tests__"
-    ]
+    "include": ["./src/index.ts"],
+    "exclude": ["./src/**/__tests__"]
 }
