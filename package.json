@@ -20,6 +20,7 @@
     "scripts": {
         "dev": "webpack --mode development",
         "build": "webpack --mode production",
+        "typescript": "tsc --noEmit",
         "test": "jest",
         "test-coverage": "jest --coverage",
         "prettier": "prettier --write .",
