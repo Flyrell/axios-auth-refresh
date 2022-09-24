@@ -1,0 +1,22 @@
+name: Pull request
+
+on:
+    pull_request:
+        branches:
+            - master
+    workflow_dispatch:
+
+jobs:
+    npm_script_validation:
+        name: npm script validation
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                script: [typescript, test]
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3.4.1
+              with:
+                  node-version: 16
+            - run: npm i
+            - run: npm run ${{ matrix.script }}
