@@ -1,0 +1,12 @@
+root: true
+parser: '@typescript-eslint/parser'
+parserOptions:
+    project:
+        - './tsconfig.json'
+plugins:
+    - '@typescript-eslint'
+    - simple-import-sort
+extends:
+    - eslint:all
+    - plugin:@typescript-eslint/all
+    - prettier
