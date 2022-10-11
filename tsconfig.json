@@ -4,7 +4,12 @@
         "target": "es2015",
         "sourceMap": true,
         "declaration": true,
-        "module": "commonjs"
+        "module": "commonjs",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true
     },
     "include": ["./src/index.ts"],
     "exclude": ["./src/**/__tests__"]

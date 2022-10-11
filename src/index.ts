@@ -1,4 +1,4 @@
-import { AxiosInstance, AxiosResponse, AxiosPromise } from 'axios';
+import { AxiosInstance, AxiosResponse } from 'axios';
 import { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
 import {
     unsetCache,
