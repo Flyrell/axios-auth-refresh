@@ -1,5 +1,5 @@
 import { AxiosAuthRefreshCache } from '../model';
-import { mockedAxios } from '../testUtil';
+import { mockedAxios } from './testUtil';
 import { unsetCache } from '../utils';
 
 describe('State is cleared', () => {

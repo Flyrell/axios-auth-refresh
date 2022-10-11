@@ -1,5 +1,5 @@
 import { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
-import { mockedAxios, sleep } from '../testUtil';
+import { mockedAxios, sleep } from './testUtil';
 import {
     createRefreshCall,
     createRequestQueueInterceptor,
