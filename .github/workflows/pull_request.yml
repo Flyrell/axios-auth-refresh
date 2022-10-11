@@ -3,12 +3,12 @@ name: Pull request
 on:
     pull_request:
         branches:
-            - master
+            - main
     workflow_dispatch:
 
 jobs:
-    npm_script_validation:
-        name: npm script validation
+    yarn_script_validation:
+        name: yarn script validation
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -18,5 +18,5 @@ jobs:
             - uses: actions/setup-node@v3.5.0
               with:
                   node-version: 16
-            - run: npm i
-            - run: npm run ${{ matrix.script }}
+            - run: yarn install --frozen-lockfile
+            - run: yarn ${{ matrix.script }}
