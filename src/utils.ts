@@ -100,10 +100,12 @@ export function createRequestQueueInterceptor(
         cache.requestQueueInterceptorId = instance.interceptors.request.use((request: CustomAxiosRequestConfig) => {
             if (request?.skipAuthRefresh) return request;
             return cache.refreshCall
-                .catch(() => {
-                    throw new axios.Cancel('Request call failed');
-                })
-                .then(() => (options.onRetry ? options.onRetry(request) : request));
+                ? cache.refreshCall
+                      .catch(() => {
+                          throw new axios.Cancel('Request call failed');
+                      })
+                      .then(() => (options.onRetry ? options.onRetry(request) : request))
+                : undefined;
         });
     }
     return cache.requestQueueInterceptorId;
@@ -116,7 +118,7 @@ export function createRequestQueueInterceptor(
  * @param {AxiosAuthRefreshCache} cache
  */
 export function unsetCache(instance: AxiosInstance, cache: AxiosAuthRefreshCache): void {
-    instance.interceptors.request.eject(cache.requestQueueInterceptorId);
+    if (cache.requestQueueInterceptorId) instance.interceptors.request.eject(cache.requestQueueInterceptorId);
     cache.requestQueueInterceptorId = undefined;
     cache.refreshCall = undefined;
     cache.skipInstances = cache.skipInstances.filter((skipInstance) => skipInstance !== instance);

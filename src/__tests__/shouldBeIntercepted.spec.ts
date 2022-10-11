@@ -3,7 +3,7 @@ import { shouldInterceptError } from '../utils';
 import axios from 'axios';
 
 describe('Determines if the response should be intercepted', () => {
-    let cache: AxiosAuthRefreshCache = undefined;
+    let cache: AxiosAuthRefreshCache | undefined = undefined;
     beforeEach(() => {
         cache = {
             skipInstances: [],
@@ -15,27 +15,27 @@ describe('Determines if the response should be intercepted', () => {
     const options = { statusCodes: [401] };
 
     it('no error object provided', () => {
-        expect(shouldInterceptError(undefined, options, axios, cache)).toBeFalsy();
+        expect(shouldInterceptError(undefined, options, axios, cache as any)).toBeFalsy();
     });
 
     it('no response inside error object', () => {
-        expect(shouldInterceptError({}, options, axios, cache)).toBeFalsy();
+        expect(shouldInterceptError({}, options, axios, cache as any)).toBeFalsy();
     });
 
     it('no status in error.response object', () => {
-        expect(shouldInterceptError({ response: {} }, options, axios, cache)).toBeFalsy();
+        expect(shouldInterceptError({ response: {} }, options, axios, cache as any)).toBeFalsy();
     });
 
     it('error does not include the response status', () => {
-        expect(shouldInterceptError({ response: { status: 403 } }, options, axios, cache)).toBeFalsy();
+        expect(shouldInterceptError({ response: { status: 403 } }, options, axios, cache as any)).toBeFalsy();
     });
 
     it('error includes the response status', () => {
-        expect(shouldInterceptError({ response: { status: 401 } }, options, axios, cache)).toBeTruthy();
+        expect(shouldInterceptError({ response: { status: 401 } }, options, axios, cache as any)).toBeTruthy();
     });
 
     it('error has response status specified as a string', () => {
-        expect(shouldInterceptError({ response: { status: '401' } }, options, axios, cache)).toBeTruthy();
+        expect(shouldInterceptError({ response: { status: '401' } }, options, axios, cache as any)).toBeTruthy();
     });
 
     it('when skipAuthRefresh flag is set ot true', () => {
@@ -43,7 +43,7 @@ describe('Determines if the response should be intercepted', () => {
             response: { status: 401 },
             config: { skipAuthRefresh: true },
         };
-        expect(shouldInterceptError(error, options, axios, cache)).toBeFalsy();
+        expect(shouldInterceptError(error, options, axios, cache as any)).toBeFalsy();
     });
 
     it('when skipAuthRefresh flag is set to false', () => {
@@ -51,14 +51,14 @@ describe('Determines if the response should be intercepted', () => {
             response: { status: 401 },
             config: { skipAuthRefresh: false },
         };
-        expect(shouldInterceptError(error, options, axios, cache)).toBeTruthy();
+        expect(shouldInterceptError(error, options, axios, cache as any)).toBeTruthy();
     });
 
     it('when pauseInstanceWhileRefreshing flag is not provided', () => {
         const error = {
             response: { status: 401 },
         };
-        expect(shouldInterceptError(error, options, axios, cache)).toBeTruthy();
+        expect(shouldInterceptError(error, options, axios, cache as any)).toBeTruthy();
     });
 
     it('when pauseInstanceWhileRefreshing flag is set to true', () => {
@@ -67,7 +67,7 @@ describe('Determines if the response should be intercepted', () => {
         };
         const newCache = { ...cache, skipInstances: [axios] };
         const newOptions = { ...options, pauseInstanceWhileRefreshing: true };
-        expect(shouldInterceptError(error, newOptions, axios, newCache)).toBeFalsy();
+        expect(shouldInterceptError(error, newOptions, axios, newCache as any)).toBeFalsy();
     });
 
     it('when pauseInstanceWhileRefreshing flag is set to false', () => {
@@ -75,7 +75,7 @@ describe('Determines if the response should be intercepted', () => {
             response: { status: 401 },
         };
         const newOptions = { ...options, pauseInstanceWhileRefreshing: false };
-        expect(shouldInterceptError(error, newOptions, axios, cache)).toBeTruthy();
+        expect(shouldInterceptError(error, newOptions, axios, cache as any)).toBeTruthy();
     });
 
     it('when shouldRefresh return true', () => {
@@ -83,7 +83,7 @@ describe('Determines if the response should be intercepted', () => {
             response: { status: 401 },
         };
         const newOptions: AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => true };
-        expect(shouldInterceptError(error, newOptions, axios, cache)).toBeTruthy();
+        expect(shouldInterceptError(error, newOptions, axios, cache as any)).toBeTruthy();
     });
 
     it('when shouldRefresh return false', () => {
@@ -91,6 +91,6 @@ describe('Determines if the response should be intercepted', () => {
             response: { status: 401 },
         };
         const newOptions: AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => false };
-        expect(shouldInterceptError(error, newOptions, axios, cache)).toBeFalsy();
+        expect(shouldInterceptError(error, newOptions, axios, cache as any)).toBeFalsy();
     });
 });
