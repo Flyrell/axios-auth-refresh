@@ -10,7 +10,7 @@ import {
 import axios, { AxiosRequestConfig } from 'axios';
 
 describe('Requests interceptor', () => {
-    let cache: AxiosAuthRefreshCache = undefined;
+    let cache: AxiosAuthRefreshCache | undefined = undefined;
     beforeEach(() => {
         cache = {
             skipInstances: [],
@@ -21,16 +21,16 @@ describe('Requests interceptor', () => {
 
     it('is created', () => {
         const mock = mockedAxios();
-        createRefreshCall({}, () => Promise.resolve(), cache);
-        const result1 = createRequestQueueInterceptor(mock, cache, {});
+        createRefreshCall({}, () => Promise.resolve(), cache as any);
+        const result1 = createRequestQueueInterceptor(mock, cache as any, {});
         expect(mock.interceptors.has('request', result1)).toBeTruthy();
         mock.interceptors.request.eject(result1);
     });
 
     it('is created only once', () => {
-        createRefreshCall({}, () => Promise.resolve(), cache);
-        const result1 = createRequestQueueInterceptor(axios.create(), cache, {});
-        const result2 = createRequestQueueInterceptor(axios.create(), cache, {});
+        createRefreshCall({}, () => Promise.resolve(), cache as any);
+        const result1 = createRequestQueueInterceptor(axios.create(), cache as any, {});
+        const result2 = createRequestQueueInterceptor(axios.create(), cache as any, {});
         expect(result1).toBe(result2);
     });
 
@@ -38,14 +38,14 @@ describe('Requests interceptor', () => {
         try {
             let refreshed = 0;
             const instance = axios.create();
-            createRequestQueueInterceptor(instance, cache, {});
+            createRequestQueueInterceptor(instance, cache as any, {});
             createRefreshCall(
                 {},
                 async () => {
                     await sleep(400);
                     ++refreshed;
                 },
-                cache
+                cache as any
             );
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
@@ -58,14 +58,14 @@ describe('Requests interceptor', () => {
         try {
             let refreshed = 0;
             const instance = axios.create();
-            createRequestQueueInterceptor(instance, cache, {});
+            createRequestQueueInterceptor(instance, cache as any, {});
             createRefreshCall(
                 {},
                 async () => {
                     await sleep(400);
                     ++refreshed;
                 },
-                cache
+                cache as any
             );
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
             await instance
@@ -81,14 +81,14 @@ describe('Requests interceptor', () => {
             let passed = 0,
                 caught = 0;
             const instance = axios.create();
-            createRequestQueueInterceptor(instance, cache, {});
+            createRequestQueueInterceptor(instance, cache as any, {});
             createRefreshCall(
                 {},
                 async () => {
                     await sleep(500);
                     return Promise.reject();
                 },
-                cache
+                cache as any
             );
             await instance
                 .get('http://example.com')
@@ -120,14 +120,14 @@ describe('Requests interceptor', () => {
     it('calls the onRetry callback before retrying the request', async () => {
         const instance = axios.create();
         const onRetry = jest.fn((requestConfig: AxiosRequestConfig) => requestConfig);
-        createRequestQueueInterceptor(instance, cache, { onRetry });
+        createRequestQueueInterceptor(instance, cache as any, { onRetry });
         createRefreshCall(
             {},
             async () => {
                 await sleep(500);
                 return Promise.resolve();
             },
-            cache
+            cache as any
         );
         await instance.get('http://example.com');
         expect(onRetry).toHaveBeenCalled();

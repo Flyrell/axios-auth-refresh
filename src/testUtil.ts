@@ -1,7 +1,7 @@
 import { AxiosStatic } from 'axios';
 
 export const mockedAxios: () => AxiosStatic | any = () => {
-    const bag = {
+    const bag: any = {
         request: [],
         response: [],
         has: jest.fn((type: 'request' | 'response', id: number) => bag[type].includes(id)),
@@ -15,7 +15,7 @@ export const mockedAxios: () => AxiosStatic | any = () => {
                     return i;
                 }),
                 eject: jest.fn((i) => {
-                    bag.request = bag.request.filter((n) => n !== i);
+                    bag.request = bag.request.filter((n: any) => n !== i);
                 }),
             },
             response: {
@@ -25,7 +25,7 @@ export const mockedAxios: () => AxiosStatic | any = () => {
                     return i;
                 }),
                 eject: jest.fn((i) => {
-                    bag.response = bag.response.filter((n) => n !== i);
+                    bag.response = bag.response.filter((n: any) => n !== i);
                 }),
             },
             has: bag.has,
@@ -36,7 +36,7 @@ export const mockedAxios: () => AxiosStatic | any = () => {
     };
 };
 
-export const sleep = (ms) => {
+export const sleep = (ms: number) => {
     return new Promise((resolve) => {
         const id = setTimeout(() => {
             clearTimeout(id);

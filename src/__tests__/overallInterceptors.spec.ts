@@ -3,7 +3,7 @@ import axios from 'axios';
 
 describe('Creates the overall interceptor correctly', () => {
     it('throws error when no function provided', () => {
-        expect(() => createAuthRefreshInterceptor(axios, null)).toThrow();
+        expect(() => createAuthRefreshInterceptor(axios, null as any)).toThrow();
     });
 
     it('returns interceptor id', () => {
@@ -20,17 +20,22 @@ describe('Creates the overall interceptor correctly', () => {
                 (req) => req,
                 (error) => Promise.reject(error)
             );
+            // @ts-ignore
             const interceptor1 = instance.interceptors.response['handlers'][id];
+            // @ts-ignore
             const interceptor2 = instance.interceptors.response['handlers'][id2];
             try {
                 await instance.get('https://httpstat.us/401');
             } catch (e) {
                 // Ignore error as it's 401 all over again
             }
+            // @ts-ignore
             const interceptor1__after = instance.interceptors.response['handlers'][id];
+            // @ts-ignore
             const interceptor2__after = instance.interceptors.response['handlers'][id2];
             expect(interceptor1).toBe(interceptor1__after);
             expect(interceptor2).toBe(interceptor2__after);
+            return await Promise.resolve();
         } catch (e) {
             return await Promise.reject();
         }

@@ -10,7 +10,5 @@
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true
-    },
-    "include": ["./src/index.ts"],
-    "exclude": ["./src/**/__tests__"]
+    }
 }
