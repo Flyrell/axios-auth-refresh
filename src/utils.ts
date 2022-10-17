@@ -1,6 +1,7 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
+import type { AxiosAuthRefreshError } from './model';
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
     skipAuthRefresh?: boolean;
@@ -12,9 +13,16 @@ export const defaultOptions: AxiosAuthRefreshOptions = {
 };
 
 /**
+ * A custom type guard function that determines whether `error` is an AxiosAuthRefreshError.
+ * @param error
+ */
+export const isAxiosAuthRefreshError = (error: unknown): error is AxiosAuthRefreshError =>
+    typeof error === 'object' && error !== null && 'config' in error;
+
+/**
  * Merges two options objects (options overwrites defaults).
- *
- * @return {AxiosAuthRefreshOptions}
+ * @param defaults
+ * @param options
  */
 export const mergeOptions = (
     defaults: AxiosAuthRefreshOptions,
@@ -24,20 +32,20 @@ export const mergeOptions = (
 /**
  * Returns TRUE: when error.response.status is contained in options.statusCodes
  * Returns FALSE: when error or error.response doesn't exist or options.statusCodes doesn't include response status
- *
- * @return {boolean}
+ * @param error
+ * @param options
+ * @param instance
+ * @param cache
  */
-export const shouldInterceptError = (
-    error: any,
+export const shouldInterceptError = <TError = unknown>(
+    error: TError,
     options: AxiosAuthRefreshOptions,
     instance: AxiosInstance,
     cache: AxiosAuthRefreshCache
 ): boolean => {
-    if (!error) {
-        return false;
-    }
+    if (!isAxiosAuthRefreshError(error)) return false;
 
-    if (error.config?.skipAuthRefresh) {
+    if (error.config.skipAuthRefresh) {
         return false;
     }
 
@@ -46,32 +54,33 @@ export const shouldInterceptError = (
         (!error.response ||
             (options.shouldRefresh
                 ? !options.shouldRefresh(error)
-                : !options.statusCodes?.includes(parseInt(error.response.status, 10))))
+                : !options.statusCodes?.includes(
+                      typeof error.response.status === 'string'
+                          ? parseInt(error.response.status, 10)
+                          : error.response.status
+                  )))
     ) {
         return false;
     }
 
     // Copy config to response if there's a network error, so config can be modified and used in the retry
-    if (!error.response) {
-        error.response = {
-            config: error.config,
-        };
-    }
+    if (!error.response) error.response = { config: error.config } as AxiosResponse;
 
     return !options.pauseInstanceWhileRefreshing || !cache.skipInstances.includes(instance);
 };
 
 /**
  * Creates refresh call if it does not exist or returns the existing one.
- *
- * @return {Promise<any>}
+ * @param error
+ * @param fn
+ * @param cache
  */
 // eslint-disable-next-line @typescript-eslint/promise-function-async
-export const createRefreshCall = (
-    error: any,
-    fn: (error: any) => Promise<any>,
+export const createRefreshCall = <TError = unknown>(
+    error: TError,
+    fn: (error: TError) => Promise<void>,
     cache: AxiosAuthRefreshCache
-): Promise<any> => {
+): Promise<void> => {
     if (!cache.refreshCall) {
         cache.refreshCall = fn(error);
         if (typeof cache.refreshCall.then !== 'function') {
@@ -84,8 +93,9 @@ export const createRefreshCall = (
 
 /**
  * Creates request queue interceptor if it does not exist and returns its id.
- *
- * @return {number}
+ * @param instance
+ * @param cache
+ * @param options
  */
 export const createRequestQueueInterceptor = (
     instance: AxiosInstance,
@@ -109,9 +119,8 @@ export const createRequestQueueInterceptor = (
 
 /**
  * Ejects request queue interceptor and unset interceptor cached values.
- *
- * @param {AxiosInstance} instance
- * @param {AxiosAuthRefreshCache} cache
+ * @param instance
+ * @param cache
  */
 export const unsetCache = (instance: AxiosInstance, cache: AxiosAuthRefreshCache): void => {
     if (cache.requestQueueInterceptorId) instance.interceptors.request.eject(cache.requestQueueInterceptorId);
@@ -121,8 +130,7 @@ export const unsetCache = (instance: AxiosInstance, cache: AxiosAuthRefreshCache
 };
 
 /**
- * Returns instance that's going to be used when requests are retried
- *
+ * Returns instance that's going to be used when requests are retried.
  * @param instance
  * @param options
  */
@@ -131,12 +139,15 @@ export const getRetryInstance = (instance: AxiosInstance, options: AxiosAuthRefr
 
 /**
  * Resend failed axios request.
- *
- * @param {any} error
- * @param {AxiosInstance} instance
- * @return AxiosPromise
+ * @param error
+ * @param instance
  */
-export const resendFailedRequest = async (error: any, instance: AxiosInstance): Promise<AxiosResponse> => {
+export const resendFailedRequest = async <TError = unknown>(
+    error: TError,
+    instance: AxiosInstance
+): Promise<AxiosResponse | undefined> => {
+    if (!isAxiosAuthRefreshError(error) || !error.response?.config) return undefined;
+
     error.config.skipAuthRefresh = true;
     return instance(error.response.config);
 };

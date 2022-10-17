@@ -1,4 +1,4 @@
-import createAuthRefreshInterceptor from '../index';
+import { createAuthRefreshInterceptor } from '../index';
 import axios from 'axios';
 
 describe('Creates the overall interceptor correctly', () => {

@@ -22,17 +22,16 @@ export type { AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from './m
  * the specific requests you make by yourself in order to make sure it's not intercepted. This behavior can be
  * turned off, but use it with caution as you need to mark the requests with `skipAuthRefresh` flag yourself in order to
  * not run into interceptors loop.
- *
- * @param {AxiosInstance} instance - Axios HTTP client instance
- * @param {(error: any) => Promise<AxiosPromise>} refreshAuthCall - refresh token call which must return a Promise
- * @param {AxiosAuthRefreshOptions} options - options for the interceptor @see defaultOptions
- * @return {number} - interceptor id (in case you want to eject it manually)
+ * @param instance Axios HTTP client instance
+ * @param refreshAuthCall Refresh token call which must return a Promise
+ * @param options Options for the interceptor see defaultOptions
+ * @return Interceptor id (in case you want to eject it manually)
  */
-export default function createAuthRefreshInterceptor(
+export const createAuthRefreshInterceptor = <TError = unknown>(
     instance: AxiosInstance,
-    refreshAuthCall: (error: any) => Promise<any>,
+    refreshAuthCall: (error: TError) => Promise<void>,
     options: AxiosAuthRefreshOptions = {}
-): number {
+): number => {
     if (typeof refreshAuthCall !== 'function') {
         throw new Error('axios-auth-refresh requires `refreshAuthCall` to be a function that returns a promise.');
     }
@@ -45,14 +44,14 @@ export default function createAuthRefreshInterceptor(
 
     return instance.interceptors.response.use(
         (response: AxiosResponse) => response,
-        async (error: any) => {
-            options = mergeOptions(defaultOptions, options);
+        async (error: TError) => {
+            const mergedOptions = mergeOptions(defaultOptions, options);
 
-            if (!shouldInterceptError(error, options, instance, cache)) {
+            if (!shouldInterceptError(error, mergedOptions, instance, cache)) {
                 return Promise.reject(error);
             }
 
-            if (options.pauseInstanceWhileRefreshing) {
+            if (mergedOptions.pauseInstanceWhileRefreshing) {
                 cache.skipInstances.push(instance);
             }
 
@@ -60,12 +59,12 @@ export default function createAuthRefreshInterceptor(
             const refreshing = createRefreshCall(error, refreshAuthCall, cache);
 
             // Create interceptor that will bind all the others requests until refreshAuthCall is resolved
-            createRequestQueueInterceptor(instance, cache, options);
+            createRequestQueueInterceptor(instance, cache, mergedOptions);
 
             return refreshing
                 .finally(() => unsetCache(instance, cache))
-                .catch(async (error) => Promise.reject(error))
-                .then(async () => resendFailedRequest(error, getRetryInstance(instance, options)));
+                .catch(async (reason) => Promise.reject(reason))
+                .then(async () => resendFailedRequest(error, getRetryInstance(instance, mergedOptions)));
         }
     );
-}
+};

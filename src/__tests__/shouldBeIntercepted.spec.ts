@@ -31,11 +31,15 @@ describe('Determines if the response should be intercepted', () => {
     });
 
     it('error includes the response status', () => {
-        expect(shouldInterceptError({ response: { status: 401 } }, options, axios, cache as any)).toBeTruthy();
+        expect(
+            shouldInterceptError({ response: { status: 401 }, config: {} }, options, axios, cache as any)
+        ).toBeTruthy();
     });
 
     it('error has response status specified as a string', () => {
-        expect(shouldInterceptError({ response: { status: '401' } }, options, axios, cache as any)).toBeTruthy();
+        expect(
+            shouldInterceptError({ response: { status: '401' }, config: {} }, options, axios, cache as any)
+        ).toBeTruthy();
     });
 
     it('when skipAuthRefresh flag is set ot true', () => {
@@ -55,9 +59,7 @@ describe('Determines if the response should be intercepted', () => {
     });
 
     it('when pauseInstanceWhileRefreshing flag is not provided', () => {
-        const error = {
-            response: { status: 401 },
-        };
+        const error = { response: { status: 401 }, config: {} };
         expect(shouldInterceptError(error, options, axios, cache as any)).toBeTruthy();
     });
 
@@ -71,17 +73,13 @@ describe('Determines if the response should be intercepted', () => {
     });
 
     it('when pauseInstanceWhileRefreshing flag is set to false', () => {
-        const error = {
-            response: { status: 401 },
-        };
+        const error = { response: { status: 401 }, config: {} };
         const newOptions = { ...options, pauseInstanceWhileRefreshing: false };
         expect(shouldInterceptError(error, newOptions, axios, cache as any)).toBeTruthy();
     });
 
     it('when shouldRefresh return true', () => {
-        const error = {
-            response: { status: 401 },
-        };
+        const error = { response: { status: 401 }, config: {} };
         const newOptions: AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => true };
         expect(shouldInterceptError(error, newOptions, axios, cache as any)).toBeTruthy();
     });
