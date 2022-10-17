@@ -1,8 +1,8 @@
-import { AxiosAuthRefreshCache } from '../model';
+import type { AxiosAuthRefreshCache } from '../model';
 import { createRefreshCall } from '../utils';
 
 describe('Creates refresh call', () => {
-    let cache: AxiosAuthRefreshCache | undefined = undefined;
+    let cache: AxiosAuthRefreshCache | undefined;
     beforeEach(() => {
         cache = {
             skipInstances: [],
@@ -18,7 +18,7 @@ describe('Creates refresh call', () => {
         console.warn = mocked;
 
         try {
-            await createRefreshCall({}, () => Promise.resolve(), cache as any);
+            await createRefreshCall({}, async () => Promise.resolve(), cache as any);
         } catch (e) {
             expect(mocked).toBeCalled();
         }
@@ -28,7 +28,7 @@ describe('Creates refresh call', () => {
 
     it('creates refreshTokenCall and correctly resolves', async () => {
         try {
-            const result = await createRefreshCall({}, () => Promise.resolve('hello world'), cache as any);
+            const result = await createRefreshCall({}, async () => Promise.resolve('hello world'), cache as any);
             expect(result).toBe('hello world');
         } catch (e) {
             expect(true).toBe(false);
@@ -37,14 +37,14 @@ describe('Creates refresh call', () => {
 
     it('creates refreshTokenCall and correctly rejects', async () => {
         try {
-            await createRefreshCall({}, () => Promise.reject('goodbye world'), cache as any);
+            await createRefreshCall({}, async () => Promise.reject('goodbye world'), cache as any);
         } catch (e) {
             expect(e).toBe('goodbye world');
         }
     });
 
     it('creates only one instance of refreshing call', () => {
-        const refreshTokenCall = () => Promise.resolve('hello world');
+        const refreshTokenCall = async () => Promise.resolve('hello world');
         const result1 = createRefreshCall({}, refreshTokenCall, cache as any);
         const result2 = createRefreshCall({}, refreshTokenCall, cache as any);
         expect(result1).toBe(result2);

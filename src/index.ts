@@ -1,5 +1,5 @@
-import { AxiosInstance, AxiosResponse } from 'axios';
-import { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
+import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
 import {
     unsetCache,
     mergeOptions,
@@ -11,7 +11,7 @@ import {
     createRequestQueueInterceptor,
 } from './utils';
 
-export { AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from './model';
+export type { AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from './model';
 
 /**
  * Creates an authentication refresh interceptor that binds to any error response.
@@ -45,7 +45,7 @@ export default function createAuthRefreshInterceptor(
 
     return instance.interceptors.response.use(
         (response: AxiosResponse) => response,
-        (error: any) => {
+        async (error: any) => {
             options = mergeOptions(defaultOptions, options);
 
             if (!shouldInterceptError(error, options, instance, cache)) {
@@ -64,8 +64,8 @@ export default function createAuthRefreshInterceptor(
 
             return refreshing
                 .finally(() => unsetCache(instance, cache))
-                .catch((error) => Promise.reject(error))
-                .then(() => resendFailedRequest(error, getRetryInstance(instance, options)));
+                .catch(async (error) => Promise.reject(error))
+                .then(async () => resendFailedRequest(error, getRetryInstance(instance, options)));
         }
     );
 }

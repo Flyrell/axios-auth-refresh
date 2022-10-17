@@ -1,4 +1,4 @@
-import { AxiosAuthRefreshCache } from '../model';
+import type { AxiosAuthRefreshCache } from '../model';
 import { mockedAxios } from './testUtil';
 import { unsetCache } from '../utils';
 

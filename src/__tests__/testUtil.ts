@@ -1,4 +1,4 @@
-import { AxiosStatic } from 'axios';
+import type { AxiosStatic } from 'axios';
 
 export const mockedAxios: () => AxiosStatic | any = () => {
     const bag: any = {
@@ -36,11 +36,10 @@ export const mockedAxios: () => AxiosStatic | any = () => {
     };
 };
 
-export const sleep = (ms: number) => {
-    return new Promise((resolve) => {
+export const sleep = async (ms: number): Promise<string> =>
+    new Promise((resolve) => {
         const id = setTimeout(() => {
             clearTimeout(id);
             resolve('OK');
         }, ms);
     });
-};

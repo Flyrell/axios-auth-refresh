@@ -7,7 +7,7 @@ describe('Creates the overall interceptor correctly', () => {
     });
 
     it('returns interceptor id', () => {
-        const id = createAuthRefreshInterceptor(axios, () => Promise.resolve());
+        const id = createAuthRefreshInterceptor(axios, async () => Promise.resolve());
         expect(typeof id).toBe('number');
         expect(id).toBeGreaterThan(-1);
     });
@@ -15,27 +15,27 @@ describe('Creates the overall interceptor correctly', () => {
     it('does not change the interceptors queue', async () => {
         try {
             const instance = axios.create();
-            const id = createAuthRefreshInterceptor(axios, () => instance.get('https://httpstat.us/200'));
+            const id = createAuthRefreshInterceptor(axios, async () => instance.get('https://httpstat.us/200'));
             const id2 = instance.interceptors.response.use(
                 (req) => req,
-                (error) => Promise.reject(error)
+                async (error) => Promise.reject(error)
             );
-            // @ts-ignore
-            const interceptor1 = instance.interceptors.response['handlers'][id];
-            // @ts-ignore
-            const interceptor2 = instance.interceptors.response['handlers'][id2];
+            // @ts-expect-error
+            const interceptor1 = instance.interceptors.response.handlers[id];
+            // @ts-expect-error
+            const interceptor2 = instance.interceptors.response.handlers[id2];
             try {
                 await instance.get('https://httpstat.us/401');
             } catch (e) {
                 // Ignore error as it's 401 all over again
             }
-            // @ts-ignore
-            const interceptor1__after = instance.interceptors.response['handlers'][id];
-            // @ts-ignore
-            const interceptor2__after = instance.interceptors.response['handlers'][id2];
+            // @ts-expect-error
+            const interceptor1__after = instance.interceptors.response.handlers[id];
+            // @ts-expect-error
+            const interceptor2__after = instance.interceptors.response.handlers[id2];
             expect(interceptor1).toBe(interceptor1__after);
             expect(interceptor2).toBe(interceptor2__after);
-            return await Promise.resolve();
+            return;
         } catch (e) {
             return await Promise.reject();
         }

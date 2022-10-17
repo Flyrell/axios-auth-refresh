@@ -1,4 +1,4 @@
-import { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import type { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
 export interface AxiosAuthRefreshOptions {
     statusCodes?: Array<number>;
@@ -7,7 +7,7 @@ export interface AxiosAuthRefreshOptions {
      * @param error AxiosError
      * @returns boolean
      */
-    shouldRefresh?(error: AxiosError): boolean;
+    shouldRefresh?: (error: AxiosError) => boolean;
     retryInstance?: AxiosInstance;
     interceptNetworkError?: boolean;
     pauseInstanceWhileRefreshing?: boolean;
@@ -22,7 +22,7 @@ export interface AxiosAuthRefreshOptions {
 }
 
 export interface AxiosAuthRefreshCache {
-    skipInstances: AxiosInstance[];
+    skipInstances: Array<AxiosInstance>;
     refreshCall: Promise<any> | undefined;
     requestQueueInterceptorId: number | undefined;
 }

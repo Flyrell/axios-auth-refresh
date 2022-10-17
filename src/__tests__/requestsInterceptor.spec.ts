@@ -1,4 +1,4 @@
-import { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
+import type { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
 import { mockedAxios, sleep } from './testUtil';
 import {
     createRefreshCall,
@@ -7,10 +7,11 @@ import {
     getRetryInstance,
     mergeOptions,
 } from '../utils';
-import axios, { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 
 describe('Requests interceptor', () => {
-    let cache: AxiosAuthRefreshCache | undefined = undefined;
+    let cache: AxiosAuthRefreshCache | undefined;
     beforeEach(() => {
         cache = {
             skipInstances: [],
@@ -21,14 +22,14 @@ describe('Requests interceptor', () => {
 
     it('is created', () => {
         const mock = mockedAxios();
-        createRefreshCall({}, () => Promise.resolve(), cache as any);
+        createRefreshCall({}, async () => Promise.resolve(), cache as any);
         const result1 = createRequestQueueInterceptor(mock, cache as any, {});
         expect(mock.interceptors.has('request', result1)).toBeTruthy();
         mock.interceptors.request.eject(result1);
     });
 
     it('is created only once', () => {
-        createRefreshCall({}, () => Promise.resolve(), cache as any);
+        createRefreshCall({}, async () => Promise.resolve(), cache as any);
         const result1 = createRequestQueueInterceptor(axios.create(), cache as any, {});
         const result2 = createRequestQueueInterceptor(axios.create(), cache as any, {});
         expect(result1).toBe(result2);
@@ -78,8 +79,8 @@ describe('Requests interceptor', () => {
 
     it('cancels all requests when refreshing call failed', async () => {
         try {
-            let passed = 0,
-                caught = 0;
+            let caught = 0,
+                passed = 0;
             const instance = axios.create();
             createRequestQueueInterceptor(instance, cache as any, {});
             createRefreshCall(

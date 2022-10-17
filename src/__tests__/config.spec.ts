@@ -1,4 +1,4 @@
-import { AxiosAuthRefreshOptions } from '../model';
+import type { AxiosAuthRefreshOptions } from '../model';
 import { mergeOptions } from '../utils';
 
 describe('Merges configs', () => {

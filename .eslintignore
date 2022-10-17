@@ -1,0 +1,4 @@
+dist/
+src/__tests__/
+jest.config.js
+webpack.config.js

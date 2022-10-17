@@ -1,0 +1,42 @@
+root: true
+parser: '@typescript-eslint/parser'
+parserOptions:
+    project:
+        - './tsconfig.json'
+plugins:
+    - '@typescript-eslint'
+    - simple-import-sort
+extends:
+    - eslint:all
+    - plugin:@typescript-eslint/all
+    - prettier
+rules:
+    '@typescript-eslint/array-type':
+        - 2
+        - default: 'generic'
+    '@typescript-eslint/explicit-module-boundary-types': 0
+    '@typescript-eslint/no-confusing-void-expression':
+        - 2
+        - ignoreArrowShorthand: true
+    '@typescript-eslint/no-explicit-any': 0
+    '@typescript-eslint/no-magic-numbers': 0
+    '@typescript-eslint/no-redundant-type-constituents': 0
+    '@typescript-eslint/no-shadow': 0
+    '@typescript-eslint/no-throw-literal': 0
+    '@typescript-eslint/no-unsafe-argument': 0
+    '@typescript-eslint/no-unsafe-assignment': 0
+    '@typescript-eslint/no-unsafe-call': 0
+    '@typescript-eslint/no-unsafe-member-access': 0
+    '@typescript-eslint/no-unsafe-return': 0
+    '@typescript-eslint/prefer-readonly-parameter-types': 0
+    '@typescript-eslint/strict-boolean-expressions': 0
+    id-length: 0
+    max-params: 0
+    no-console: 0
+    no-param-reassign: 0
+    no-ternary: 0
+    no-undefined: 0
+    one-var: 0
+    prefer-promise-reject-errors: 0
+    sort-imports: 0 # We already use the simple-import-sort plugin
+    sort-keys: 0

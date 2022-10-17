@@ -12,7 +12,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                script: [typescript, test]
+                script: [typescript, lint, test]
         steps:
             - uses: actions/checkout@v3
             - uses: actions/setup-node@v3.5.0

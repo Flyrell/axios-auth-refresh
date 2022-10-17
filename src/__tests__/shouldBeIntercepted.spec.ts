@@ -1,9 +1,9 @@
-import { AxiosAuthRefreshCache, AxiosAuthRefreshOptions } from '../model';
+import type { AxiosAuthRefreshCache, AxiosAuthRefreshOptions } from '../model';
 import { shouldInterceptError } from '../utils';
 import axios from 'axios';
 
 describe('Determines if the response should be intercepted', () => {
-    let cache: AxiosAuthRefreshCache | undefined = undefined;
+    let cache: AxiosAuthRefreshCache | undefined;
     beforeEach(() => {
         cache = {
             skipInstances: [],
