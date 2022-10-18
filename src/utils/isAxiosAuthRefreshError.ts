@@ -5,5 +5,4 @@ import type { AxiosAuthRefreshError } from '../model';
  * @param error
  */
 export const isAxiosAuthRefreshError = (error: unknown): error is AxiosAuthRefreshError =>
-    typeof error === 'object' && error !== null && 'config' in error;
-// && 'isAxiosError' in error;
+    typeof error === 'object' && error !== null && 'config' in error && 'isAxiosError' in error;

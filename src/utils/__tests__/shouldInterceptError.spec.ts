@@ -1,9 +1,12 @@
 import type { AxiosAuthRefreshCache, AxiosAuthRefreshOptions } from '../../model';
 import axios from 'axios';
 import { shouldInterceptError } from '../shouldInterceptError';
+import { AxiosAuthRefreshError } from '../../model';
+import { createAxiosAuthRefreshErrorMock } from '../../test/axiosAuthRefreshErrorMock';
 
 describe('Determines if the response should be intercepted', () => {
     let cache: AxiosAuthRefreshCache | undefined;
+
     beforeEach(() => {
         cache = {
             skipInstances: [],
@@ -12,83 +15,147 @@ describe('Determines if the response should be intercepted', () => {
         };
     });
 
-    const options = { statusCodes: [401] };
+    const options: AxiosAuthRefreshOptions = { statusCodes: [401] };
 
     it('no error object provided', () => {
-        expect(shouldInterceptError(undefined, options, axios, cache as any)).toBeFalsy();
-    });
+        // Arrange
+        const errorMock = undefined;
 
+        // Act
+        const result = shouldInterceptError(errorMock, options, axios, cache as any);
+
+        // Assert
+        expect(result).toBeFalsy();
+    });
     it('no response inside error object', () => {
-        expect(shouldInterceptError({}, options, axios, cache as any)).toBeFalsy();
-    });
+        // Arrange
+        const errorMock = {};
 
+        // Act
+        const result = shouldInterceptError(errorMock, options, axios, cache as any);
+
+        // Assert
+        expect(result).toBeFalsy();
+    });
     it('no status in error.response object', () => {
-        expect(shouldInterceptError({ response: {} }, options, axios, cache as any)).toBeFalsy();
-    });
+        // Arrange
+        const errorMock = { response: {} };
 
+        // Act
+        const result = shouldInterceptError(errorMock, options, axios, cache as any);
+
+        // Assert
+        expect(result).toBeFalsy();
+    });
     it('error does not include the response status', () => {
-        expect(shouldInterceptError({ response: { status: 403 } }, options, axios, cache as any)).toBeFalsy();
-    });
+        // Arrange
+        const errorMock = { response: { status: 403 } };
 
+        // Act
+        const result = shouldInterceptError(errorMock, options, axios, cache as any);
+
+        // Assert
+        expect(result).toBeFalsy();
+    });
     it('error includes the response status', () => {
-        expect(
-            shouldInterceptError({ response: { status: 401 }, config: {} }, options, axios, cache as any)
-        ).toBeTruthy();
-    });
+        // Arrange
+        const errorMock = createAxiosAuthRefreshErrorMock({ response: { status: 401 } });
 
+        // Act
+        const result = shouldInterceptError(errorMock, options, axios, cache as any);
+
+        // Assert
+        expect(result).toBeTruthy();
+    });
     it('error has response status specified as a string', () => {
-        expect(
-            shouldInterceptError({ response: { status: '401' }, config: {} }, options, axios, cache as any)
-        ).toBeTruthy();
-    });
+        // Arrange
+        const errorMock: AxiosAuthRefreshError = createAxiosAuthRefreshErrorMock({
+            response: { status: '401' as unknown as number },
+        });
 
+        // Act
+        const result = shouldInterceptError(errorMock, options, axios, cache as any);
+
+        // Assert
+        expect(result).toBeTruthy();
+    });
     it('when skipAuthRefresh flag is set ot true', () => {
-        const error = {
-            response: { status: 401 },
-            config: { skipAuthRefresh: true },
-        };
-        expect(shouldInterceptError(error, options, axios, cache as any)).toBeFalsy();
-    });
+        // Arrange
+        const errorMock = { response: { status: 401 }, config: { skipAuthRefresh: true } };
 
+        // Act
+        const result = shouldInterceptError(errorMock, options, axios, cache as any);
+
+        // Assert
+        expect(result).toBeFalsy();
+    });
     it('when skipAuthRefresh flag is set to false', () => {
-        const error = {
+        // Arrange
+        const errorMock: AxiosAuthRefreshError = createAxiosAuthRefreshErrorMock({
             response: { status: 401 },
             config: { skipAuthRefresh: false },
-        };
-        expect(shouldInterceptError(error, options, axios, cache as any)).toBeTruthy();
-    });
+        });
 
+        // Act
+        const result = shouldInterceptError(errorMock, options, axios, cache as any);
+
+        // Assert
+        expect(result).toBeTruthy();
+    });
     it('when pauseInstanceWhileRefreshing flag is not provided', () => {
-        const error = { response: { status: 401 }, config: {} };
-        expect(shouldInterceptError(error, options, axios, cache as any)).toBeTruthy();
-    });
+        // Arrange
+        const errorMock: AxiosAuthRefreshError = createAxiosAuthRefreshErrorMock({ response: { status: 401 } });
 
+        // Act
+        const result = shouldInterceptError(errorMock, options, axios, cache as any);
+
+        // Assert
+
+        expect(result).toBeTruthy();
+    });
     it('when pauseInstanceWhileRefreshing flag is set to true', () => {
-        const error = {
-            response: { status: 401 },
-        };
+        // Arrange
+        const errorMock = { response: { status: 401 } };
         const newCache = { ...cache, skipInstances: [axios] };
         const newOptions = { ...options, pauseInstanceWhileRefreshing: true };
-        expect(shouldInterceptError(error, newOptions, axios, newCache as any)).toBeFalsy();
-    });
 
+        // Act
+        const result = shouldInterceptError(errorMock, newOptions, axios, newCache as any);
+
+        // Assert
+        expect(result).toBeFalsy();
+    });
     it('when pauseInstanceWhileRefreshing flag is set to false', () => {
-        const error = { response: { status: 401 }, config: {} };
+        // Arrange
+        const errorMock: AxiosAuthRefreshError = createAxiosAuthRefreshErrorMock({ response: { status: 401 } });
         const newOptions = { ...options, pauseInstanceWhileRefreshing: false };
-        expect(shouldInterceptError(error, newOptions, axios, cache as any)).toBeTruthy();
-    });
 
+        // Act
+        const result = shouldInterceptError(errorMock, newOptions, axios, cache as any);
+
+        // Assert
+        expect(result).toBeTruthy();
+    });
     it('when shouldRefresh return true', () => {
-        const error = { response: { status: 401 }, config: {} };
+        // Arrange
+        const errorMock: AxiosAuthRefreshError = createAxiosAuthRefreshErrorMock({ response: { status: 401 } });
         const newOptions: AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => true };
-        expect(shouldInterceptError(error, newOptions, axios, cache as any)).toBeTruthy();
-    });
 
+        // Act
+        const result = shouldInterceptError(errorMock, newOptions, axios, cache as any);
+
+        // Assert
+        expect(result).toBeTruthy();
+    });
     it('when shouldRefresh return false', () => {
-        const error = {
-            response: { status: 401 },
-        };
+        // Arrange
+        const errorMock = { response: { status: 401 } };
         const newOptions: AxiosAuthRefreshOptions = { ...options, shouldRefresh: () => false };
-        expect(shouldInterceptError(error, newOptions, axios, cache as any)).toBeFalsy();
+
+        // Act
+        const result = shouldInterceptError(errorMock, newOptions, axios, cache as any);
+
+        // Assert
+        expect(result).toBeFalsy();
     });
 });
