@@ -2,4 +2,4 @@ dist/
 src/__tests__/
 src/utils/__tests__/
 jest.config.ts
-webpack.config.js
+rollup.config.ts

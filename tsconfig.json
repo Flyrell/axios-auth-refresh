@@ -1,15 +1,10 @@
 {
     "compilerOptions": {
-        "outDir": "./dist",
-        "target": "es2015",
-        "sourceMap": true,
-        "declaration": true,
-        "module": "commonjs",
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true
     },
-    "exclude": ["node_modules", "dist", "jest.config.ts", "webpack.config.js"]
+    "exclude": ["node_modules", "dist", "jest.config.ts", "rollup.config.ts"]
 }
