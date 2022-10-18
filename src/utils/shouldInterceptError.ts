@@ -1,5 +1,6 @@
-import type { AxiosAuthRefreshCache, AxiosAuthRefreshOptions } from '../model';
 import type { AxiosInstance, AxiosResponse } from 'axios';
+
+import type { AxiosAuthRefreshCache, AxiosAuthRefreshOptions } from '../model';
 import { isAxiosAuthRefreshError } from './isAxiosAuthRefreshError';
 
 /**

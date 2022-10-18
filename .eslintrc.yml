@@ -39,5 +39,7 @@ rules:
     no-undefined: 0
     one-var: 0
     prefer-promise-reject-errors: 0
+    simple-import-sort/exports: 2 # Enabling the plugin simple-import-sort
+    simple-import-sort/imports: 2 # Enabling the plugin simple-import-sort
     sort-imports: 0 # We already use the simple-import-sort plugin
     sort-keys: 0

@@ -1,4 +1,5 @@
 import type { AxiosInstance, AxiosResponse } from 'axios';
+
 import { isAxiosAuthRefreshError } from './isAxiosAuthRefreshError';
 
 /**

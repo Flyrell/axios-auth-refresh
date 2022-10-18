@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios';
 import axios from 'axios';
+
 import type { AxiosAuthRefreshCache, AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from '../model';
 
 /**

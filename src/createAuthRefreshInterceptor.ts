@@ -1,13 +1,14 @@
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import type { AxiosAuthRefreshCache, AxiosAuthRefreshOptions } from './model';
-import { mergeOptions } from './utils/mergeOptions';
+
 import { defaultOptions } from './defaultOptions';
-import { shouldInterceptError } from './utils/shouldInterceptError';
+import type { AxiosAuthRefreshCache, AxiosAuthRefreshOptions } from './model';
 import { createRefreshCall } from './utils/createRefreshCall';
 import { createRequestQueueInterceptor } from './utils/createRequestQueueInterceptor';
-import { unsetCache } from './utils/unsetCache';
-import { resendFailedRequest } from './utils/resendFailedRequest';
 import { getRetryInstance } from './utils/getRetryInstance';
+import { mergeOptions } from './utils/mergeOptions';
+import { resendFailedRequest } from './utils/resendFailedRequest';
+import { shouldInterceptError } from './utils/shouldInterceptError';
+import { unsetCache } from './utils/unsetCache';
 
 /**
  * Creates an authentication refresh interceptor that binds to any error response.
