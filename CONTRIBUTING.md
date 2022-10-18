@@ -1,28 +1,12 @@
-# Contributing
+There are some changes in this pull request. I am aware that not all of them are desired. Accordingly, I am happy to adapt the desired proposals or to create cherry-pick pull requests for individual changes.
 
-I am open to, and grateful for, any contributions made by the community.
-Because the life is too short to write a lot of documentation, I've copied some rules
-from axios' [CONTRIBUTING](https://raw.githubusercontent.com/axios/axios/master/CONTRIBUTING.md) docs.
+I think especially the point `More strict types` is to be considered here, because I have changed some `any` types to `unknown`. To work with this better, I export the custom type guard function `isAxiosAuthRefreshError`.
 
-### Commit Messages
-
-Commit messages should be verb based, using the following pattern:
-
--   `Fixing ...`
--   `Adding ...`
--   `Updating ...`
--   `Removing ...`
-
-### Documentation
-
-Please update the docs accordingly so that there are no discrepencies between the package and the documentation.
-
-### Developing
-
-Please, use npm as a package manager if it's not a problem for you.
-Please, always include changes to `dist/` in your pull request.
-Please, do not include any `OS/IDE specific files` in your pull request.
-
-### Build
-
-Please, use `npm run build` to build the package.
+-   Migrated to Yarn
+-   Updated several dependencies like `jest`
+-   Splitted tests into multiple files for better maintenance
+-   More strict TypeScript compiler config
+-   Initial ESLint setup
+-   More strict types (There is only one `any` remaining in the production file)
+-   Removed deprecated `skipWhileRefreshing` flag
+-   Migrated from `webpack` to `rollup`
