@@ -1,15 +1,13 @@
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
-import {
-    unsetCache,
-    mergeOptions,
-    defaultOptions,
-    getRetryInstance,
-    createRefreshCall,
-    resendFailedRequest,
-    shouldInterceptError,
-    createRequestQueueInterceptor,
-} from './utils';
+import { mergeOptions } from './utils/mergeOptions';
+import { createRefreshCall } from './utils/createRefreshCall';
+import { shouldInterceptError } from './utils/shouldInterceptError';
+import { defaultOptions } from './defaultOptions';
+import { createRequestQueueInterceptor } from './utils/createRequestQueueInterceptor';
+import { unsetCache } from './utils/unsetCache';
+import { resendFailedRequest } from './utils/resendFailedRequest';
+import { getRetryInstance } from './utils/getRetryInstance';
 
 export type { AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from './model';
 
@@ -27,9 +25,9 @@ export type { AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from './m
  * @param options Options for the interceptor see defaultOptions
  * @return Interceptor id (in case you want to eject it manually)
  */
-export const createAuthRefreshInterceptor = <TError = unknown>(
+export const createAuthRefreshInterceptor = (
     instance: AxiosInstance,
-    refreshAuthCall: (error: TError) => Promise<void>,
+    refreshAuthCall: (error: unknown) => Promise<void>,
     options: AxiosAuthRefreshOptions = {}
 ): number => {
     if (typeof refreshAuthCall !== 'function') {
@@ -44,7 +42,7 @@ export const createAuthRefreshInterceptor = <TError = unknown>(
 
     return instance.interceptors.response.use(
         (response: AxiosResponse) => response,
-        async (error: TError) => {
+        async (error: unknown) => {
             const mergedOptions = mergeOptions(defaultOptions, options);
 
             if (!shouldInterceptError(error, mergedOptions, instance, cache)) {

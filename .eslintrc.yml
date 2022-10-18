@@ -32,3 +32,12 @@ rules:
     prefer-promise-reject-errors: 0
     sort-imports: 0 # We already use the simple-import-sort plugin
     sort-keys: 0
+    '@typescript-eslint/no-unsafe-argument': 0
+    '@typescript-eslint/no-explicit-any': 0
+    max-statements: 0
+    max-lines-per-function: 0
+    '@typescript-eslint/init-declarations': 0
+    '@typescript-eslint/no-type-alias': 0
+    '@typescript-eslint/naming-convention': 0
+    '@typescript-eslint/no-unsafe-assignment': 0
+    '@typescript-eslint/no-floating-promises': 0

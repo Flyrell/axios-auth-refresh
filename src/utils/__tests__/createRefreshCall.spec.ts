@@ -1,5 +1,5 @@
-import type { AxiosAuthRefreshCache } from '../model';
-import { createRefreshCall } from '../utils';
+import type { AxiosAuthRefreshCache } from '../../model';
+import { createRefreshCall } from '../createRefreshCall';
 
 describe('Creates refresh call', () => {
     let cache: AxiosAuthRefreshCache | undefined;

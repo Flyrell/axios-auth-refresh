@@ -1,14 +1,13 @@
 import type { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
-import { mockedAxios, sleep } from './testUtil';
-import {
-    createRefreshCall,
-    createRequestQueueInterceptor,
-    defaultOptions,
-    getRetryInstance,
-    mergeOptions,
-} from '../utils';
 import type { AxiosRequestConfig } from 'axios';
 import axios from 'axios';
+import { mergeOptions } from '../utils/mergeOptions';
+import { createRefreshCall } from '../utils/createRefreshCall';
+import { createRequestQueueInterceptor } from '../utils/createRequestQueueInterceptor';
+import { defaultOptions } from '../defaultOptions';
+import { getRetryInstance } from '../utils/getRetryInstance';
+import { axiosMock } from '../test/axiosMock';
+import { sleep } from '../test/sleep';
 
 describe('Requests interceptor', () => {
     let cache: AxiosAuthRefreshCache | undefined;
@@ -21,9 +20,9 @@ describe('Requests interceptor', () => {
     });
 
     it('is created', () => {
-        const mock = mockedAxios();
+        const mock = axiosMock();
         createRefreshCall({}, async () => Promise.resolve(), cache as any);
-        const result1 = createRequestQueueInterceptor(mock, cache as any, {});
+        const result1 = createRequestQueueInterceptor(mock as any, cache as any, {});
         expect(mock.interceptors.has('request', result1)).toBeTruthy();
         mock.interceptors.request.eject(result1);
     });
