@@ -15,16 +15,25 @@ rules:
         - 2
         - default: 'generic'
     '@typescript-eslint/explicit-module-boundary-types': 0
+    '@typescript-eslint/init-declarations': 0
+    '@typescript-eslint/naming-convention': 0
     '@typescript-eslint/no-confusing-void-expression':
         - 2
         - ignoreArrowShorthand: true
+    '@typescript-eslint/no-explicit-any': 0
+    '@typescript-eslint/no-floating-promises': 0
     '@typescript-eslint/no-magic-numbers': 0
     '@typescript-eslint/no-throw-literal': 0
+    '@typescript-eslint/no-type-alias': 0
+    '@typescript-eslint/no-unsafe-argument': 0
+    '@typescript-eslint/no-unsafe-assignment': 0
     '@typescript-eslint/no-unsafe-member-access': 0
     '@typescript-eslint/prefer-readonly-parameter-types': 0
     '@typescript-eslint/strict-boolean-expressions': 0
     id-length: 0
+    max-lines-per-function: 0
     max-params: 0
+    max-statements: 0
     no-console: 0
     no-ternary: 0
     no-undefined: 0
@@ -32,12 +41,3 @@ rules:
     prefer-promise-reject-errors: 0
     sort-imports: 0 # We already use the simple-import-sort plugin
     sort-keys: 0
-    '@typescript-eslint/no-unsafe-argument': 0
-    '@typescript-eslint/no-explicit-any': 0
-    max-statements: 0
-    max-lines-per-function: 0
-    '@typescript-eslint/init-declarations': 0
-    '@typescript-eslint/no-type-alias': 0
-    '@typescript-eslint/naming-convention': 0
-    '@typescript-eslint/no-unsafe-assignment': 0
-    '@typescript-eslint/no-floating-promises': 0
