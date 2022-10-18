@@ -8,4 +8,4 @@ import type { AxiosAuthRefreshOptions } from '../model';
 export const mergeOptions = (
     defaults: AxiosAuthRefreshOptions,
     options: AxiosAuthRefreshOptions
-): AxiosAuthRefreshOptions => ({ ...defaults, pauseInstanceWhileRefreshing: options.skipWhileRefreshing, ...options });
+): AxiosAuthRefreshOptions => ({ ...defaults, ...options });
