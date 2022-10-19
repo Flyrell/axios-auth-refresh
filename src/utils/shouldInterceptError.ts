@@ -1,7 +1,7 @@
 import type { AxiosInstance, AxiosResponse } from 'axios';
 
 import type { AxiosAuthRefreshCache, AxiosAuthRefreshOptions } from '../model';
-import { isAxiosAuthRefreshError } from './isAxiosAuthRefreshError';
+import { isAxiosError } from './isAxiosError';
 
 /**
  * Determines if the response should be intercepted
@@ -18,7 +18,7 @@ export const shouldInterceptError = (
     instance: AxiosInstance,
     cache: AxiosAuthRefreshCache
 ): boolean => {
-    if (!isAxiosAuthRefreshError(error)) return false;
+    if (!isAxiosError(error)) return false;
 
     if (error.config.skipAuthRefresh) {
         return false;

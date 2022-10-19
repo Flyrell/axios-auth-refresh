@@ -1,6 +1,6 @@
 import type { AxiosInstance, AxiosResponse } from 'axios';
 
-import { isAxiosAuthRefreshError } from './isAxiosAuthRefreshError';
+import { isAxiosError } from './isAxiosError';
 
 /**
  * Resend failed axios request.
@@ -11,7 +11,7 @@ export const resendFailedRequest = async (
     error: unknown,
     instance: AxiosInstance
 ): Promise<AxiosResponse | undefined> => {
-    if (!isAxiosAuthRefreshError(error) || !error.response?.config) return undefined;
+    if (!isAxiosError(error) || !error.response?.config) return undefined;
 
     error.config.skipAuthRefresh = true;
     return instance(error.response.config);

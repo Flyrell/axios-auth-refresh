@@ -11,7 +11,7 @@
         "interceptor",
         "auto refresh"
     ],
-    "main": "dist/index.js",
+    "main": "dist/index.min.js",
     "types": "dist/index.d.ts",
     "repository": "https://github.com/Flyrell/axios-auth-refresh",
     "author": "Dawid Zbiński <dawid@zbinski.eu>",

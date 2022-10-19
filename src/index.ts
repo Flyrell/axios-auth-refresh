@@ -1,3 +1,6 @@
-export { createAuthRefreshInterceptor } from './createAuthRefreshInterceptor';
+import { createAuthRefreshInterceptor } from './createAuthRefreshInterceptor';
+
 export type { AxiosAuthRefreshError, AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from './model';
-export { isAxiosAuthRefreshError } from './utils/isAxiosAuthRefreshError';
+export { isAxiosError } from './utils/isAxiosError';
+export { createAuthRefreshInterceptor };
+export default createAuthRefreshInterceptor;

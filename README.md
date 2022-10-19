@@ -31,7 +31,7 @@ yarn add axios-auth-refresh
 ```typescript
 createAuthRefreshInterceptor(
     axios: AxiosInstance,
-    refreshAuthLogic: (failedRequest: any) => Promise<any>,
+    refreshAuthLogic: (failedRequest: unknown) => Promise<any>,
     options: AxiosAuthRefreshOptions = {}
 ): number;
 ```
@@ -62,10 +62,35 @@ import axios from 'axios';
 import createAuthRefreshInterceptor from 'axios-auth-refresh';
 
 // Function that will be called to refresh authorization
-const refreshAuthLogic = (failedRequest) =>
-    axios.post('https://www.example.com/auth/token/refresh').then((tokenRefreshResponse) => {
+const refreshAuthLogic = async (failedRequest) =>
+    axios.post('https://www.example.com/auth/token/refresh').then(async (tokenRefreshResponse) => {
         localStorage.setItem('token', tokenRefreshResponse.data.token);
-        failedRequest.response.config.headers['Authorization'] = 'Bearer ' + tokenRefreshResponse.data.token;
+        failedRequest.response.config.headers.Authorization = `Bearer ${tokenRefreshResponse.data.token}`;
+        return Promise.resolve();
+    });
+
+// Instantiate the interceptor
+createAuthRefreshInterceptor(axios, refreshAuthLogic);
+
+// Make a call. If it returns a 401 error, the refreshAuthLogic will be run,
+// and the request retried with the new token
+axios.get('https://www.example.com/restricted/area').then(/* ... */).catch(/* ... */);
+```
+
+#### TypeScript: Narrow down the `unknown` type
+
+To specify the `unknown` type of the `failedRequest` parameter for TypeScript, the custom type guard function `isAxiosError` is provided.
+
+```typescript
+import axios from 'axios';
+import { createAuthRefreshInterceptor, isAxiosError } from 'axios-auth-refresh';
+
+// Function that will be called to refresh authorization
+const refreshAuthLogic = async (failedRequest: unknown): Promise<void> =>
+    axios.post('https://www.example.com/auth/token/refresh').then(async (tokenRefreshResponse) => {
+        localStorage.setItem('token', tokenRefreshResponse.data.token);
+        if (isAxiosError(failedRequest) && failedRequest.response?.config.headers)
+            failedRequest.response.config.headers.Authorization = `Bearer ${tokenRefreshResponse.data.token}`;
         return Promise.resolve();
     });
 

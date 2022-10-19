@@ -6,7 +6,7 @@ export default defineConfig({
     plugins: [rollupTypescript(), terser()],
     input: 'src/index.ts',
     output: {
-        dir: 'dist',
+        file: 'dist/index.min.js',
         name: 'axios-auth-refresh',
         format: 'umd',
         globals: {
