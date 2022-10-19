@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "outDir": "dist",
+        "declaration": true,
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
