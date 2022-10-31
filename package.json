@@ -33,7 +33,7 @@
     "devDependencies": {
         "@types/jest": "^28.1.6",
         "axios": "^0.27.2",
-        "babel-loader": "^8.2.5",
+        "babel-loader": "^9.0.0",
         "clean-webpack-plugin": "^4.0.0",
         "declaration-bundler-webpack-plugin": "^1.0.3",
         "husky": "^8.0.1",
