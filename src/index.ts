@@ -63,9 +63,9 @@ export default function createAuthRefreshInterceptor(
             createRequestQueueInterceptor(instance, cache, options);
 
             return refreshing
-                .finally(() => unsetCache(instance, cache))
                 .catch((error) => Promise.reject(error))
-                .then(() => resendFailedRequest(error, getRetryInstance(instance, options)));
+                .then(() => resendFailedRequest(error, getRetryInstance(instance, options)))
+                .finally(() => unsetCache(instance, cache));
         }
     );
 }
