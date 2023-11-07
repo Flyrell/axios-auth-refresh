@@ -1,5 +1,5 @@
 import { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
-import axios, { AxiosRequestConfig, AxiosStatic } from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosStatic } from 'axios';
 import createAuthRefreshInterceptor, { AxiosAuthRefreshOptions } from '../index';
 import {
     unsetCache,
@@ -329,7 +329,7 @@ describe('Requests interceptor', () => {
 
     it('calls the onRetry callback before retrying the request', async () => {
         const instance = axios.create();
-        const onRetry = jest.fn((requestConfig: AxiosRequestConfig) => requestConfig);
+        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => requestConfig);
         createRequestQueueInterceptor(instance, cache, { onRetry });
         createRefreshCall(
             {},
@@ -347,7 +347,7 @@ describe('Requests interceptor', () => {
 describe('Response interceptor', () => {
     it('uses the request interceptor to call the onRetry callback before retrying the request', async () => {
         const instance = axios.create();
-        const onRetry = jest.fn((requestConfig: AxiosRequestConfig) => {
+        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => {
             // modify the url to one that will respond with status code 200
             return {
                 ...requestConfig,
@@ -363,7 +363,7 @@ describe('Response interceptor', () => {
 
     it('uses the request interceptor to call the onRetry callback before retrying all the requests', async () => {
         const instance = axios.create();
-        const onRetry = jest.fn((requestConfig: AxiosRequestConfig) => {
+        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => {
             // modify the url to one that will respond with status code 200
             return {
                 ...requestConfig,
