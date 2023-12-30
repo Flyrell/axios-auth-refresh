@@ -1,7 +1,7 @@
-import axios, { AxiosInstance, AxiosPromise, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosPromise, InternalAxiosRequestConfig } from 'axios';
 import { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
 
-export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+export interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     skipAuthRefresh?: boolean;
 }
 

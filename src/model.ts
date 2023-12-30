@@ -1,4 +1,4 @@
-import { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 export interface AxiosAuthRefreshOptions {
     statusCodes?: Array<number>;
@@ -11,7 +11,9 @@ export interface AxiosAuthRefreshOptions {
     retryInstance?: AxiosInstance;
     interceptNetworkError?: boolean;
     pauseInstanceWhileRefreshing?: boolean;
-    onRetry?: (requestConfig: AxiosRequestConfig) => AxiosRequestConfig | Promise<AxiosRequestConfig>;
+    onRetry?: (
+        requestConfig: InternalAxiosRequestConfig
+    ) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
 
     /**
      * @deprecated
@@ -27,6 +29,6 @@ export interface AxiosAuthRefreshCache {
     requestQueueInterceptorId: number | undefined;
 }
 
-export interface AxiosAuthRefreshRequestConfig extends AxiosRequestConfig {
+export interface AxiosAuthRefreshRequestConfig extends InternalAxiosRequestConfig {
     skipAuthRefresh?: boolean;
 }
