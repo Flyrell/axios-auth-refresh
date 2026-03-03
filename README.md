@@ -79,10 +79,6 @@ axios.get('https://www.example.com/restricted/area').then(/* ... */).catch(/* ..
 
 #### Skipping the interceptor
 
-:warning: Because of the bug [axios#2295](https://github.com/axios/axios/issues/2295) v0.19.0 is not supported. :warning:
-
-:white_check_mark: This has been fixed and will be released in axios v0.19.1
-
 There's a possibility to skip the logic of the interceptor for specific calls.
 To do this, you need to pass the `skipAuthRefresh` option to the request config for each request you don't want to intercept.
 
@@ -131,7 +127,8 @@ You can specify multiple status codes that you want the interceptor to run for.
 
 #### Customize intercept logic
 
-You can specify multiple status codes that you want the interceptor to run for.
+You can provide a custom function to determine whether a failed request should trigger a refresh.
+When `shouldRefresh` is configured, the `statusCodes` logic is ignored.
 
 ```javascript
 {
@@ -162,24 +159,23 @@ stalled request is called with the request configuration object.
 }
 ```
 
-#### Pause the instance while "refresh logic" is running
+#### Deduplicate refresh calls
 
-While your refresh logic is running, the interceptor will be triggered for every request
-which returns one of the `options.statusCodes` specified (HTTP 401 by default).
+By default (`deduplicateRefresh: true`), the interceptor ensures that only one refresh call runs at a time.
+While the refresh is in progress, the axios instance is paused — any new requests are queued and
+resolved automatically once the refresh completes.
 
-In order to prevent the interceptors loop (when your refresh logic fails with any of the status
-codes specified in `options.statusCodes`) you need to use a [`skipAuthRefresh`](#skipping-the-interceptor)
-flag on your refreshing call inside the `refreshAuthLogic` function.
-
-In case your refresh logic does not make any calls, you should consider using the following flag
-when initializing the interceptor to pause the whole axios instance while the refreshing is pending.
-This prevents interceptor from running for each failed request.
+This is the recommended behavior for most applications. If you need every failed request to independently
+trigger its own refresh cycle, you can disable it:
 
 ```javascript
 {
-    pauseInstanceWhileRefreshing: true, // default: false
+    deduplicateRefresh: false, // default: true
 }
 ```
+
+When disabled, you must mark your refresh calls with [`skipAuthRefresh`](#skipping-the-interceptor)
+to avoid interceptor loops.
 
 #### Intercept on network error
 
@@ -203,7 +199,7 @@ The [`examples/`](./examples) folder contains runnable examples that double as e
 
 - **basic-refresh** — Core 401 → refresh → retry flow
 - **skip-auth-refresh** — `skipAuthRefresh` flag skips interception
-- **pause-instance** — `pauseInstanceWhileRefreshing` with concurrent requests
+- **pause-instance** — `deduplicateRefresh` with concurrent requests
 - **custom-status-codes** — `statusCodes` + `shouldRefresh` callback
 - **on-retry-callback** — `onRetry` config mutation before retry
 - **network-error** — `interceptNetworkError` for CORS scenarios
@@ -227,24 +223,6 @@ have you used it for something else? Create a PR with your use case to share it.
 
 ---
 
-### Changelog
-
-- **v3.1.0**
-    - axios v0.21.1 support
-    - `interceptNetworkError` option introduced. See [#133](https://github.com/Flyrell/axios-auth-refresh/issues/133).
-
-- **v3.0.0**
-    - `skipWhileRefresh` flag has been deprecated due to its unclear name and its logic has been moved to `pauseInstanceWhileRefreshing` flag
-    - `pauseInstanceWhileRefreshing` is set to `false` by default
-
----
-
 #### Want to help?
 
 Check out [contribution guide](CONTRIBUTING.md) or my [patreon page!](https://www.patreon.com/dawidzbinski)
-
----
-
-#### Special thanks to [JetBrains](https://www.jetbrains.com/?from=axios-auth-refresh) for providing the IDE for our library
-
-<a href="https://www.jetbrains.com/?from=axios-auth-refresh" title="Link to JetBrains"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/JetBrains_Logo_2016.svg/128px-JetBrains_Logo_2016.svg.png" alt="JetBrains"></a>

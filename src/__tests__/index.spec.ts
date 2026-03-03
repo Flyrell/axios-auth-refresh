@@ -128,27 +128,27 @@ describe('Determines if the response should be intercepted', () => {
         expect(shouldInterceptError(error, options, axios, cache)).toBeTruthy();
     });
 
-    it('when pauseInstanceWhileRefreshing flag is not provided', () => {
+    it('when deduplicateRefresh flag is not provided', () => {
         const error = {
             response: { status: 401 },
         };
         expect(shouldInterceptError(error, options, axios, cache)).toBeTruthy();
     });
 
-    it('when pauseInstanceWhileRefreshing flag is set to true', () => {
+    it('when deduplicateRefresh flag is set to true', () => {
         const error = {
             response: { status: 401 },
         };
         const newCache = { ...cache, skipInstances: [axios] };
-        const newOptions = { ...options, pauseInstanceWhileRefreshing: true };
+        const newOptions = { ...options, deduplicateRefresh: true };
         expect(shouldInterceptError(error, newOptions, axios, newCache)).toBeFalsy();
     });
 
-    it('when pauseInstanceWhileRefreshing flag is set to false', () => {
+    it('when deduplicateRefresh flag is set to false', () => {
         const error = {
             response: { status: 401 },
         };
-        const newOptions = { ...options, pauseInstanceWhileRefreshing: false };
+        const newOptions = { ...options, deduplicateRefresh: false };
         expect(shouldInterceptError(error, newOptions, axios, cache)).toBeTruthy();
     });
 
@@ -404,7 +404,7 @@ describe('Response interceptor', () => {
         };
 
         const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => requestConfig);
-        createAuthRefreshInterceptor(instance, () => Promise.resolve(), { onRetry });
+        createAuthRefreshInterceptor(instance, () => Promise.resolve(), { onRetry, deduplicateRefresh: false });
 
         const requests = [
             instance.get('http://example.com/1'),

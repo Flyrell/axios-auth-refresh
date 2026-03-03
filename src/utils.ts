@@ -7,7 +7,7 @@ export interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 
 export const defaultOptions: AxiosAuthRefreshOptions = {
     statusCodes: [401],
-    pauseInstanceWhileRefreshing: false,
+    deduplicateRefresh: true,
     maxRetries: 3,
 };
 
@@ -77,11 +77,11 @@ export function shouldInterceptError(
         };
     }
 
-    return !options.pauseInstanceWhileRefreshing || !cache.skipInstances.includes(instance);
+    return !options.deduplicateRefresh || !cache.skipInstances.includes(instance);
 }
 
 /**
- * Creates refresh call if it does not exist or returns the existing one.
+ * Creates a refresh call if it does not exist or returns the existing one.
  *
  * @return {Promise<any>}
  */

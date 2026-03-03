@@ -10,7 +10,7 @@ export interface AxiosAuthRefreshOptions {
     shouldRefresh?(error: AxiosError): boolean;
     retryInstance?: AxiosInstance;
     interceptNetworkError?: boolean;
-    pauseInstanceWhileRefreshing?: boolean;
+    deduplicateRefresh?: boolean;
     onRetry?: (
         requestConfig: InternalAxiosRequestConfig,
     ) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;

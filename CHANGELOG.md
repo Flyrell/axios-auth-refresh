@@ -14,7 +14,9 @@
 
 - **`axios.Cancel` replaced with `axios.CanceledError`** — Queued requests that fail because the refresh call failed now throw `axios.CanceledError` instead of the deprecated `axios.Cancel`. `axios.isCancel()` still returns `true` for these errors, so most code is unaffected. Only breaks if you were doing `error instanceof axios.Cancel` directly.
 
-- **`skipWhileRefreshing` option removed** — This flag was deprecated in v3.0.0. Use `pauseInstanceWhileRefreshing` instead.
+- **`pauseInstanceWhileRefreshing` renamed to `deduplicateRefresh`** — The option has been renamed for clarity. Additionally, the default value has changed from `false` to `true`, since most users benefit from deduplicating concurrent refresh calls. Set `deduplicateRefresh: false` to restore the previous behavior.
+
+- **`skipWhileRefreshing` option removed** — This flag was deprecated in v3.0.0. Use `deduplicateRefresh` instead.
 
 ### Bug Fixes
 
@@ -53,3 +55,21 @@
 - **Requires axios v1+** — Types updated from `AxiosRequestConfig` to `InternalAxiosRequestConfig` throughout. The `onRetry` callback now receives and returns `InternalAxiosRequestConfig` instead of `AxiosRequestConfig`.
 
 - **Updated all dev dependencies** — TypeScript 5.8, Jest 29, Webpack 5.105, Prettier 3.8, Husky 9. No changes to runtime behavior, but the build toolchain is modernized.
+
+---
+
+## v3.1.0
+
+### Improvements
+
+- axios v0.21.1 support
+- `interceptNetworkError` option introduced. See [#133](https://github.com/Flyrell/axios-auth-refresh/issues/133).
+
+---
+
+## v3.0.0
+
+### Breaking Changes
+
+- `skipWhileRefresh` flag has been deprecated due to its unclear name and its logic has been moved to `pauseInstanceWhileRefreshing` flag.
+- `pauseInstanceWhileRefreshing` is set to `false` by default.

@@ -1,7 +1,7 @@
 /**
- * Pause Instance While Refreshing Example
+ * Deduplicate Refresh Example
  *
- * Demonstrates pauseInstanceWhileRefreshing with concurrent requests:
+ * Demonstrates deduplicateRefresh with concurrent requests:
  * 1. The first request fails with 401 and triggers a (delayed) refresh
  * 2. While refresh is in progress, 4 more requests are fired
  * 3. Those requests are stalled by the request queue interceptor
@@ -38,7 +38,7 @@ createAuthRefreshInterceptor(
         state.validToken = 'token-v2';
         failedRequest.response.config.headers['Authorization'] = `Bearer ${state.validToken}`;
     },
-    { pauseInstanceWhileRefreshing: true },
+    { deduplicateRefresh: true },
 );
 
 async function main() {

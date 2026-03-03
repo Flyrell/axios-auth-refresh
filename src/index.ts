@@ -61,7 +61,7 @@ export default function createAuthRefreshInterceptor(
                 }
             }
 
-            if (mergedOptions.pauseInstanceWhileRefreshing && !cache.skipInstances.includes(instance)) {
+            if (mergedOptions.deduplicateRefresh && !cache.skipInstances.includes(instance)) {
                 cache.skipInstances.push(instance);
             }
 
