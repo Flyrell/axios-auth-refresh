@@ -1,0 +1,65 @@
+name: Create Release
+
+on:
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    release:
+        if: github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Get latest tag
+              id: latest_tag
+              run: echo "tag=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
+
+            - name: Determine version bump
+              id: bump
+              run: |
+                  COMMITS=$(git log ${{ steps.latest_tag.outputs.tag }}..HEAD --pretty=format:"%s")
+
+                  if echo "$COMMITS" | grep -q "^breaking:"; then
+                    echo "type=major" >> "$GITHUB_OUTPUT"
+                  elif echo "$COMMITS" | grep -q "^feat:"; then
+                    echo "type=minor" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "type=patch" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            - name: Bump version
+              id: version
+              run: |
+                  npm version ${{ steps.bump.outputs.type }} --no-git-tag-version
+                  VERSION=$(node -p "require('./package.json').version")
+                  echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+            - name: Commit version bump
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add package.json
+                  git commit -m "v${{ steps.version.outputs.version }}"
+
+            - name: Create and push tag
+              run: |
+                  git tag "v${{ steps.version.outputs.version }}"
+                  git push origin master --tags
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: v${{ steps.version.outputs.version }}
+                  generate_release_notes: true
