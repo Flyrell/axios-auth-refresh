@@ -3,6 +3,8 @@
 ![Package downloads](https://img.shields.io/npm/dm/axios-auth-refresh)
 ![Package types definitions](https://img.shields.io/npm/types/axios-auth-refresh)
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dawidzbinski)
+
 # axios-auth-refresh
 
 Library that helps you implement automatic refresh of authorization
