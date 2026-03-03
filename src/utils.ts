@@ -23,9 +23,6 @@ export function mergeOptions(
     return {
         ...defaults,
         ...options,
-        ...(options.skipWhileRefreshing !== undefined && {
-            pauseInstanceWhileRefreshing: options.skipWhileRefreshing,
-        }),
     };
 }
 

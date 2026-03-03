@@ -14,9 +14,9 @@
 
 - **`axios.Cancel` replaced with `axios.CanceledError`** — Queued requests that fail because the refresh call failed now throw `axios.CanceledError` instead of the deprecated `axios.Cancel`. `axios.isCancel()` still returns `true` for these errors, so most code is unaffected. Only breaks if you were doing `error instanceof axios.Cancel` directly.
 
-### Bug Fixes
+- **`skipWhileRefreshing` option removed** — This flag was deprecated in v3.0.0. Use `pauseInstanceWhileRefreshing` instead.
 
-- **`mergeOptions` no longer overrides `pauseInstanceWhileRefreshing` with `undefined`** — When `skipWhileRefreshing` was not provided, the old code would set `pauseInstanceWhileRefreshing` to `undefined` before spreading user options, losing the default `false` value.
+### Bug Fixes
 
 - **`resendFailedRequest` now uses `error.config` consistently** — Previously it set `skipAuthRefresh` on `error.config` but sent `error.response.config`. These happen to be the same reference in most cases, but the code now uses `error.config` for both operations.
 

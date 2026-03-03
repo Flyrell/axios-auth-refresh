@@ -16,16 +16,9 @@ export interface AxiosAuthRefreshOptions {
     ) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
 
     /**
-     * @deprecated
-     * This flag has been deprecated in favor of `pauseInstanceWhileRefreshing` flag.
-     * Use `pauseInstanceWhileRefreshing` instead.
-     */
-    skipWhileRefreshing?: boolean;
-
-    /**
      * Maximum number of consecutive refresh attempts before giving up.
-     * Prevents infinite refresh loops when the refresh call succeeds but the
-     * retried request still fails with an auth error.
+     * Prevents infinite refresh loops when the refresh call succeeds,
+     * but the retried request still fails with an auth error.
      * @default 3
      */
     maxRetries?: number;

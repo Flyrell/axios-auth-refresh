@@ -74,20 +74,6 @@ describe('Merges configs', () => {
         const target: AxiosAuthRefreshOptions = { statusCodes: [204] };
         expect(mergeOptions(target, source)).toEqual({ statusCodes: [204] });
     });
-
-    it('preserves pauseInstanceWhileRefreshing default when skipWhileRefreshing is not provided', () => {
-        const source: AxiosAuthRefreshOptions = {};
-        const target: AxiosAuthRefreshOptions = { statusCodes: [401], pauseInstanceWhileRefreshing: false };
-        const result = mergeOptions(target, source);
-        expect(result.pauseInstanceWhileRefreshing).toBe(false);
-    });
-
-    it('maps skipWhileRefreshing to pauseInstanceWhileRefreshing when provided', () => {
-        const source: AxiosAuthRefreshOptions = { skipWhileRefreshing: true };
-        const target: AxiosAuthRefreshOptions = { statusCodes: [401], pauseInstanceWhileRefreshing: false };
-        const result = mergeOptions(target, source);
-        expect(result.pauseInstanceWhileRefreshing).toBe(true);
-    });
 });
 
 describe('Determines if the response should be intercepted', () => {
