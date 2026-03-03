@@ -32,6 +32,7 @@
         "test": "jest",
         "test:coverage": "jest --coverage",
         "prettier": "prettier --write .",
+        "examples": "tsx examples/run-all.ts",
         "prettier:staged": "pretty-quick --staged",
         "prepare": "husky"
     },
@@ -51,6 +52,7 @@
         "terser-webpack-plugin": "^5.3.16",
         "ts-jest": "^29.4.6",
         "ts-loader": "^9.5.4",
+        "tsx": "^4.19.0",
         "typescript": "^5.8.0",
         "webpack": "^5.105.2",
         "webpack-cli": "^6.0.1"

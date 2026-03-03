@@ -197,6 +197,25 @@ with an HTTP 401 response, your retry logic can test for network connectivity at
 }
 ```
 
+## Examples
+
+The [`examples/`](./examples) folder contains runnable examples that double as end-to-end tests:
+
+- **basic-refresh** — Core 401 → refresh → retry flow
+- **skip-auth-refresh** — `skipAuthRefresh` flag skips interception
+- **pause-instance** — `pauseInstanceWhileRefreshing` with concurrent requests
+- **custom-status-codes** — `statusCodes` + `shouldRefresh` callback
+- **on-retry-callback** — `onRetry` config mutation before retry
+- **network-error** — `interceptNetworkError` for CORS scenarios
+
+Run them all:
+
+```bash
+npm run examples
+```
+
+---
+
 ### Other usages of the library
 
 This library has also been used for:
