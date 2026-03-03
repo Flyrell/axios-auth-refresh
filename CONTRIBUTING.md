@@ -8,10 +8,10 @@ from axios' [CONTRIBUTING](https://raw.githubusercontent.com/axios/axios/master/
 
 Commit messages should be verb based, using the following pattern:
 
--   `Fixing ...`
--   `Adding ...`
--   `Updating ...`
--   `Removing ...`
+- `Fixing ...`
+- `Adding ...`
+- `Updating ...`
+- `Removing ...`
 
 ### Documentation
 

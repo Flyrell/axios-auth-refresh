@@ -4,7 +4,8 @@
         "target": "es2015",
         "sourceMap": true,
         "declaration": true,
-        "module": "commonjs"
+        "module": "commonjs",
+        "skipLibCheck": true
     },
     "include": ["./src/index.ts"],
     "exclude": ["./src/**/__tests__"]

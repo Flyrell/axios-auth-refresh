@@ -31,7 +31,7 @@ export { AxiosAuthRefreshOptions, AxiosAuthRefreshRequestConfig } from './model'
 export default function createAuthRefreshInterceptor(
     instance: AxiosInstance,
     refreshAuthCall: (error: any) => Promise<any>,
-    options: AxiosAuthRefreshOptions = {}
+    options: AxiosAuthRefreshOptions = {},
 ): number {
     if (typeof refreshAuthCall !== 'function') {
         throw new Error('axios-auth-refresh requires `refreshAuthCall` to be a function that returns a promise.');
@@ -66,6 +66,6 @@ export default function createAuthRefreshInterceptor(
                 .catch((error) => Promise.reject(error))
                 .then(() => resendFailedRequest(error, getRetryInstance(instance, options)))
                 .finally(() => unsetCache(instance, cache));
-        }
+        },
     );
 }

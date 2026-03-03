@@ -38,10 +38,10 @@ createAuthRefreshInterceptor(
 
 #### Parameters
 
--   `axios` - an instance of Axios
--   `refreshAuthLogic` - a Function used for refreshing authorization (**must return a promise**).
-    Accepts exactly one parameter, which is the `failedRequest` returned by the original call.
--   `options` - object with settings for interceptor (See [available options](#available-options))
+- `axios` - an instance of Axios
+- `refreshAuthLogic` - a Function used for refreshing authorization (**must return a promise**).
+  Accepts exactly one parameter, which is the `failedRequest` returned by the original call.
+- `options` - object with settings for interceptor (See [available options](#available-options))
 
 #### Returns
 
@@ -201,8 +201,8 @@ with an HTTP 401 response, your retry logic can test for network connectivity at
 
 This library has also been used for:
 
--   Automatic request throttling by [@amcsi](https://github.com/amcsi)
--   OTP challenges with Google2FA by [@LeoniePhiline](https://github.com/LeoniePhiline)
+- Automatic request throttling by [@amcsi](https://github.com/amcsi)
+- OTP challenges with Google2FA by [@LeoniePhiline](https://github.com/LeoniePhiline)
 
 have you used it for something else? Create a PR with your use case to share it.
 
@@ -210,14 +210,13 @@ have you used it for something else? Create a PR with your use case to share it.
 
 ### Changelog
 
--   **v3.1.0**
+- **v3.1.0**
+    - axios v0.21.1 support
+    - `interceptNetworkError` option introduced. See [#133](https://github.com/Flyrell/axios-auth-refresh/issues/133).
 
-    -   axios v0.21.1 support
-    -   `interceptNetworkError` option introduced. See [#133](https://github.com/Flyrell/axios-auth-refresh/issues/133).
-
--   **v3.0.0**
-    -   `skipWhileRefresh` flag has been deprecated due to its unclear name and its logic has been moved to `pauseInstanceWhileRefreshing` flag
-    -   `pauseInstanceWhileRefreshing` is set to `false` by default
+- **v3.0.0**
+    - `skipWhileRefresh` flag has been deprecated due to its unclear name and its logic has been moved to `pauseInstanceWhileRefreshing` flag
+    - `pauseInstanceWhileRefreshing` is set to `false` by default
 
 ---
 

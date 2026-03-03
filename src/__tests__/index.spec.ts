@@ -1,5 +1,5 @@
 import { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
-import axios, { AxiosRequestConfig, AxiosStatic } from 'axios';
+import axios, { AxiosStatic, InternalAxiosRequestConfig } from 'axios';
 import createAuthRefreshInterceptor, { AxiosAuthRefreshOptions } from '../index';
 import {
     unsetCache,
@@ -188,7 +188,7 @@ describe('Creates refresh call', () => {
         try {
             await createRefreshCall({}, () => Promise.resolve(), cache);
         } catch (e) {
-            expect(mocked).toBeCalled();
+            expect(mocked).toHaveBeenCalled();
         }
 
         console.warn = tmp;
@@ -255,7 +255,7 @@ describe('Requests interceptor', () => {
                     await sleep(400);
                     ++refreshed;
                 },
-                cache
+                cache,
             );
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
@@ -275,7 +275,7 @@ describe('Requests interceptor', () => {
                     await sleep(400);
                     ++refreshed;
                 },
-                cache
+                cache,
             );
             await instance.get('http://example.com').then(() => expect(refreshed).toBe(1));
             await instance
@@ -298,7 +298,7 @@ describe('Requests interceptor', () => {
                     await sleep(500);
                     return Promise.reject();
                 },
-                cache
+                cache,
             );
             await instance
                 .get('http://example.com')
@@ -329,7 +329,7 @@ describe('Requests interceptor', () => {
 
     it('calls the onRetry callback before retrying the request', async () => {
         const instance = axios.create();
-        const onRetry = jest.fn((requestConfig: AxiosRequestConfig) => requestConfig);
+        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => requestConfig);
         createRequestQueueInterceptor(instance, cache, { onRetry });
         createRefreshCall(
             {},
@@ -337,7 +337,7 @@ describe('Requests interceptor', () => {
                 await sleep(500);
                 return Promise.resolve();
             },
-            cache
+            cache,
         );
         await instance.get('http://example.com');
         expect(onRetry).toHaveBeenCalled();
@@ -347,7 +347,7 @@ describe('Requests interceptor', () => {
 describe('Response interceptor', () => {
     it('uses the request interceptor to call the onRetry callback before retrying the request', async () => {
         const instance = axios.create();
-        const onRetry = jest.fn((requestConfig: AxiosRequestConfig) => {
+        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => {
             // modify the url to one that will respond with status code 200
             return {
                 ...requestConfig,
@@ -363,7 +363,7 @@ describe('Response interceptor', () => {
 
     it('uses the request interceptor to call the onRetry callback before retrying all the requests', async () => {
         const instance = axios.create();
-        const onRetry = jest.fn((requestConfig: AxiosRequestConfig) => {
+        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => {
             // modify the url to one that will respond with status code 200
             return {
                 ...requestConfig,
@@ -402,7 +402,7 @@ describe('Creates the overall interceptor correctly', () => {
             const id = createAuthRefreshInterceptor(axios, () => instance.get('https://httpstat.us/200'));
             const id2 = instance.interceptors.response.use(
                 (req) => req,
-                (error) => Promise.reject(error)
+                (error) => Promise.reject(error),
             );
             const interceptor1 = instance.interceptors.response['handlers'][id];
             const interceptor2 = instance.interceptors.response['handlers'][id2];

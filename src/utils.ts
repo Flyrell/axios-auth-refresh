@@ -1,7 +1,7 @@
-import axios, { AxiosInstance, AxiosPromise, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosPromise, InternalAxiosRequestConfig } from 'axios';
 import { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
 
-export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+export interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     skipAuthRefresh?: boolean;
 }
 
@@ -17,7 +17,7 @@ export const defaultOptions: AxiosAuthRefreshOptions = {
  */
 export function mergeOptions(
     defaults: AxiosAuthRefreshOptions,
-    options: AxiosAuthRefreshOptions
+    options: AxiosAuthRefreshOptions,
 ): AxiosAuthRefreshOptions {
     return {
         ...defaults,
@@ -36,7 +36,7 @@ export function shouldInterceptError(
     error: any,
     options: AxiosAuthRefreshOptions,
     instance: AxiosInstance,
-    cache: AxiosAuthRefreshCache
+    cache: AxiosAuthRefreshCache,
 ): boolean {
     if (!error) {
         return false;
@@ -74,7 +74,7 @@ export function shouldInterceptError(
 export function createRefreshCall(
     error: any,
     fn: (error: any) => Promise<any>,
-    cache: AxiosAuthRefreshCache
+    cache: AxiosAuthRefreshCache,
 ): Promise<any> {
     if (!cache.refreshCall) {
         cache.refreshCall = fn(error);
@@ -94,7 +94,7 @@ export function createRefreshCall(
 export function createRequestQueueInterceptor(
     instance: AxiosInstance,
     cache: AxiosAuthRefreshCache,
-    options: AxiosAuthRefreshOptions
+    options: AxiosAuthRefreshOptions,
 ): number {
     if (typeof cache.requestQueueInterceptorId === 'undefined') {
         cache.requestQueueInterceptorId = instance.interceptors.request.use((request: CustomAxiosRequestConfig) => {
