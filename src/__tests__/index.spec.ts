@@ -1,5 +1,5 @@
 import { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
-import axios, { AxiosStatic, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosStatic, InternalAxiosRequestConfig } from 'axios';
 import createAuthRefreshInterceptor, { AxiosAuthRefreshOptions } from '../index';
 import {
     unsetCache,
@@ -74,6 +74,20 @@ describe('Merges configs', () => {
         const target: AxiosAuthRefreshOptions = { statusCodes: [204] };
         expect(mergeOptions(target, source)).toEqual({ statusCodes: [204] });
     });
+
+    it('preserves pauseInstanceWhileRefreshing default when skipWhileRefreshing is not provided', () => {
+        const source: AxiosAuthRefreshOptions = {};
+        const target: AxiosAuthRefreshOptions = { statusCodes: [401], pauseInstanceWhileRefreshing: false };
+        const result = mergeOptions(target, source);
+        expect(result.pauseInstanceWhileRefreshing).toBe(false);
+    });
+
+    it('maps skipWhileRefreshing to pauseInstanceWhileRefreshing when provided', () => {
+        const source: AxiosAuthRefreshOptions = { skipWhileRefreshing: true };
+        const target: AxiosAuthRefreshOptions = { statusCodes: [401], pauseInstanceWhileRefreshing: false };
+        const result = mergeOptions(target, source);
+        expect(result.pauseInstanceWhileRefreshing).toBe(true);
+    });
 });
 
 describe('Determines if the response should be intercepted', () => {
@@ -108,8 +122,8 @@ describe('Determines if the response should be intercepted', () => {
         expect(shouldInterceptError({ response: { status: 401 } }, options, axios, cache)).toBeTruthy();
     });
 
-    it('error has response status specified as a string', () => {
-        expect(shouldInterceptError({ response: { status: '401' } }, options, axios, cache)).toBeTruthy();
+    it('error has response status specified as a string (does not match number status codes)', () => {
+        expect(shouldInterceptError({ response: { status: '401' } }, options, axios, cache)).toBeFalsy();
     });
 
     it('when skipAuthRefresh flag is set ot true', () => {
@@ -347,36 +361,70 @@ describe('Requests interceptor', () => {
 describe('Response interceptor', () => {
     it('uses the request interceptor to call the onRetry callback before retrying the request', async () => {
         const instance = axios.create();
-        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => {
-            // modify the url to one that will respond with status code 200
-            return {
-                ...requestConfig,
-                url: 'https://httpstat.us/200',
-            };
-        });
-        createAuthRefreshInterceptor(instance, (error) => Promise.resolve(), { onRetry });
+        let callCount = 0;
 
-        await instance.get('https://httpstat.us/401');
+        // Mock adapter: the first call returns 401, subsequent calls return 200
+        instance.defaults.adapter = async (config) => {
+            callCount++;
+            if (callCount === 1) {
+                throw new AxiosError(
+                    'Unauthorized',
+                    '401',
+                    config,
+                    {},
+                    {
+                        status: 401,
+                        statusText: 'Unauthorized',
+                        headers: {},
+                        config,
+                        data: {},
+                    },
+                );
+            }
+            return { status: 200, statusText: 'OK', headers: {}, config, data: {} };
+        };
+
+        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => requestConfig);
+        createAuthRefreshInterceptor(instance, () => Promise.resolve(), { onRetry });
+
+        await instance.get('http://example.com');
 
         expect(onRetry).toHaveBeenCalled();
     });
 
     it('uses the request interceptor to call the onRetry callback before retrying all the requests', async () => {
         const instance = axios.create();
-        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => {
-            // modify the url to one that will respond with status code 200
-            return {
-                ...requestConfig,
-                url: 'https://httpstat.us/200',
-            };
-        });
-        createAuthRefreshInterceptor(instance, (error) => Promise.resolve(), { onRetry });
+        let callCount = 0;
+
+        // Mock adapter: first 4 calls return 401, subsequent calls return 200
+        instance.defaults.adapter = async (config) => {
+            callCount++;
+            if (callCount <= 4) {
+                throw new AxiosError(
+                    'Unauthorized',
+                    '401',
+                    config,
+                    {},
+                    {
+                        status: 401,
+                        statusText: 'Unauthorized',
+                        headers: {},
+                        config,
+                        data: {},
+                    },
+                );
+            }
+            return { status: 200, statusText: 'OK', headers: {}, config, data: {} };
+        };
+
+        const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => requestConfig);
+        createAuthRefreshInterceptor(instance, () => Promise.resolve(), { onRetry });
 
         const requests = [
-            instance.get('https://httpstat.us/401'),
-            instance.get('https://httpstat.us/401'),
-            instance.get('https://httpstat.us/401'),
-            instance.get('https://httpstat.us/401'),
+            instance.get('http://example.com/1'),
+            instance.get('http://example.com/2'),
+            instance.get('http://example.com/3'),
+            instance.get('http://example.com/4'),
         ];
 
         await Promise.all(requests);
@@ -399,7 +447,22 @@ describe('Creates the overall interceptor correctly', () => {
     it('does not change the interceptors queue', async () => {
         try {
             const instance = axios.create();
-            const id = createAuthRefreshInterceptor(axios, () => instance.get('https://httpstat.us/200'));
+            instance.defaults.adapter = async (config) => {
+                throw new AxiosError(
+                    'Unauthorized',
+                    '401',
+                    config,
+                    {},
+                    {
+                        status: 401,
+                        statusText: 'Unauthorized',
+                        headers: {},
+                        config,
+                        data: {},
+                    },
+                );
+            };
+            const id = createAuthRefreshInterceptor(instance, () => Promise.resolve());
             const id2 = instance.interceptors.response.use(
                 (req) => req,
                 (error) => Promise.reject(error),
@@ -407,9 +470,9 @@ describe('Creates the overall interceptor correctly', () => {
             const interceptor1 = instance.interceptors.response['handlers'][id];
             const interceptor2 = instance.interceptors.response['handlers'][id2];
             try {
-                await instance.get('https://httpstat.us/401');
+                await instance.get('http://example.com');
             } catch (e) {
-                // Ignore error as it's 401 all over again
+                // Ignore the error as it's 401 all over again
             }
             const interceptor1__after = instance.interceptors.response['handlers'][id];
             const interceptor2__after = instance.interceptors.response['handlers'][id2];

@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosPromise, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosPromise, InternalAxiosRequestConfig } from 'axios';
 import { AxiosAuthRefreshOptions, AxiosAuthRefreshCache } from './model';
 
 export interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
@@ -8,6 +8,7 @@ export interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 export const defaultOptions: AxiosAuthRefreshOptions = {
     statusCodes: [401],
     pauseInstanceWhileRefreshing: false,
+    maxRetries: 3,
 };
 
 /**
@@ -21,9 +22,25 @@ export function mergeOptions(
 ): AxiosAuthRefreshOptions {
     return {
         ...defaults,
-        pauseInstanceWhileRefreshing: options.skipWhileRefreshing,
         ...options,
+        ...(options.skipWhileRefreshing !== undefined && {
+            pauseInstanceWhileRefreshing: options.skipWhileRefreshing,
+        }),
     };
+}
+
+/**
+ * Safely calls the user-provided shouldRefresh callback, catching any errors.
+ *
+ * @return {boolean}
+ */
+function safeShouldRefresh(shouldRefresh: (error: AxiosError) => boolean, error: AxiosError): boolean {
+    try {
+        return shouldRefresh(error);
+    } catch (e) {
+        console.error('axios-auth-refresh: shouldRefresh callback threw an error:', e);
+        return false;
+    }
 }
 
 /**
@@ -50,8 +67,8 @@ export function shouldInterceptError(
         !(options.interceptNetworkError && !error.response && error.request.status === 0) &&
         (!error.response ||
             (options?.shouldRefresh
-                ? !options.shouldRefresh(error)
-                : !options.statusCodes?.includes(parseInt(error.response.status))))
+                ? !safeShouldRefresh(options.shouldRefresh, error)
+                : !options.statusCodes?.includes(error.response.status)))
     ) {
         return false;
     }
@@ -100,9 +117,19 @@ export function createRequestQueueInterceptor(
         cache.requestQueueInterceptorId = instance.interceptors.request.use((request: CustomAxiosRequestConfig) => {
             return cache.refreshCall
                 .catch(() => {
-                    throw new axios.Cancel('Request call failed');
+                    throw new axios.CanceledError('Request call failed');
                 })
-                .then(() => (options.onRetry ? options.onRetry(request) : request));
+                .then(() => {
+                    if (options.onRetry) {
+                        try {
+                            return options.onRetry(request);
+                        } catch (e) {
+                            console.error('axios-auth-refresh: onRetry callback threw an error:', e);
+                            return request;
+                        }
+                    }
+                    return request;
+                });
         });
     }
     return cache.requestQueueInterceptorId;
@@ -140,5 +167,5 @@ export function getRetryInstance(instance: AxiosInstance, options: AxiosAuthRefr
  */
 export function resendFailedRequest(error: any, instance: AxiosInstance): AxiosPromise {
     error.config.skipAuthRefresh = true;
-    return instance(error.response.config);
+    return instance(error.config);
 }

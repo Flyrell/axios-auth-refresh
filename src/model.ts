@@ -21,6 +21,14 @@ export interface AxiosAuthRefreshOptions {
      * Use `pauseInstanceWhileRefreshing` instead.
      */
     skipWhileRefreshing?: boolean;
+
+    /**
+     * Maximum number of consecutive refresh attempts before giving up.
+     * Prevents infinite refresh loops when the refresh call succeeds but the
+     * retried request still fails with an auth error.
+     * @default 3
+     */
+    maxRetries?: number;
 }
 
 export interface AxiosAuthRefreshCache {

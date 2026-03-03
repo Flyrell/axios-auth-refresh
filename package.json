@@ -12,7 +12,15 @@
         "auto refresh"
     ],
     "main": "dist/index.min.js",
+    "module": "dist/index.esm.js",
     "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.esm.js",
+            "require": "./dist/index.min.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
     "repository": "https://github.com/Flyrell/axios-auth-refresh",
     "author": "Dawid Zbiński <dawid@zbinski.eu>",
     "license": "MIT",
@@ -28,7 +36,7 @@
         "prepare": "husky"
     },
     "peerDependencies": {
-        "axios": ">= 0.18 < 0.19.0 || >= 0.19.1"
+        "axios": ">= 1.0.0"
     },
     "devDependencies": {
         "@types/jest": "^29.5.0",
