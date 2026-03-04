@@ -31,7 +31,7 @@ yarn add axios-auth-refresh
 ## Syntax
 
 ```typescript
-createAuthRefreshInterceptor(
+createAuthRefresh(
     axios: AxiosInstance,
     refreshAuthLogic: (failedRequest: any) => Promise<any>,
     options: AxiosAuthRefreshOptions = {}
@@ -52,7 +52,7 @@ Interceptor `id` in case you want to reject it manually.
 ## Usage
 
 In order to activate the interceptors, you need to import a function from `axios-auth-refresh`
-which is _exported by default_ and call it with the **axios instance** you want the interceptors for,
+and call it with the **axios instance** you want the interceptors for,
 as well as the **refresh authorization function** where you need to write the logic for refreshing the authorization.
 
 The interceptors will then be bound onto the axios instance, and the specified logic will be run whenever a [401 (Unauthorized)](https://httpstatuses.com/401) status code
@@ -61,7 +61,7 @@ Promise returned from the refreshAuthLogic function. This means that the request
 
 ```javascript
 import axios from 'axios';
-import createAuthRefreshInterceptor from 'axios-auth-refresh';
+import { createAuthRefresh } from 'axios-auth-refresh';
 
 // Function that will be called to refresh authorization
 const refreshAuthLogic = (failedRequest) =>
@@ -72,7 +72,7 @@ const refreshAuthLogic = (failedRequest) =>
     });
 
 // Instantiate the interceptor
-createAuthRefreshInterceptor(axios, refreshAuthLogic);
+createAuthRefresh(axios, refreshAuthLogic);
 
 // Make a call. If it returns a 401 error, the refreshAuthLogic will be run,
 // and the request retried with the new token
@@ -142,7 +142,7 @@ When `shouldRefresh` is configured, the `statusCodes` logic is ignored.
 #### Retry instance for stalled requests
 
 You can specify the instance which will be used for retrying the stalled requests.
-Default value is `undefined` and the instance passed to `createAuthRefreshInterceptor` function is used.
+Default value is `undefined` and the instance passed to `createAuthRefresh` function is used.
 
 ```javascript
 {

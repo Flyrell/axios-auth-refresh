@@ -1,5 +1,17 @@
 # Changelog
 
+## v5.0.1
+
+### Breaking Changes
+
+- **Named export `createAuthRefresh` added** — The function is now a named export: `import { createAuthRefresh } from 'axios-auth-refresh'`. The old default export and `createAuthRefreshInterceptor` name are still available but deprecated. This fixes ESM/CJS interop issues where `createAuthRefreshInterceptor is not a function` at runtime (#292).
+
+### Build
+
+- **Replaced webpack with rollup** — Webpack's UMD output wrapped the default export in a `{ __esModule: true, default: fn }` object, causing `createAuthRefreshInterceptor is not a function` in environments that don't respect `__esModule`. Rollup produces clean CJS and ESM outputs with proper interop. `require()` now returns the function directly, and named exports are available as properties.
+
+---
+
 ## v5.0.0
 
 ### Breaking Changes

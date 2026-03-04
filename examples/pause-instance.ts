@@ -10,7 +10,7 @@
  */
 
 import axios from 'axios';
-import createAuthRefreshInterceptor from '../src/index';
+import { createAuthRefresh } from '../src/index';
 import { createMockAdapter, MockState } from './_helpers/mock-adapter';
 import { assertEqual } from './_helpers/assert';
 
@@ -29,7 +29,7 @@ instance.interceptors.request.use((config) => {
     return config;
 });
 
-createAuthRefreshInterceptor(
+createAuthRefresh(
     instance,
     async (failedRequest) => {
         // Small delay to give time for the other requests to be queued

@@ -7,7 +7,7 @@
  */
 
 import axios from 'axios';
-import createAuthRefreshInterceptor from '../src/index';
+import { createAuthRefresh } from '../src/index';
 import { createMockAdapter, MockState } from './_helpers/mock-adapter';
 import { assertEqual, assert } from './_helpers/assert';
 
@@ -29,7 +29,7 @@ const instance = axios.create({
     headers: { Authorization: 'Bearer token-v1' },
 });
 
-createAuthRefreshInterceptor(
+createAuthRefresh(
     instance,
     async (failedRequest) => {
         state.refreshCount++;

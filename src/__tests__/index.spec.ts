@@ -1,6 +1,6 @@
 import { AxiosAuthRefreshCache, AxiosAuthRefreshRequestConfig } from '../model';
 import axios, { AxiosError, AxiosStatic, InternalAxiosRequestConfig } from 'axios';
-import createAuthRefreshInterceptor, { AxiosAuthRefreshOptions } from '../index';
+import { createAuthRefresh, AxiosAuthRefreshOptions } from '../index';
 import {
     unsetCache,
     mergeOptions,
@@ -371,7 +371,7 @@ describe('Response interceptor', () => {
         };
 
         const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => requestConfig);
-        createAuthRefreshInterceptor(instance, () => Promise.resolve(), { onRetry });
+        createAuthRefresh(instance, () => Promise.resolve(), { onRetry });
 
         await instance.get('http://example.com');
 
@@ -404,7 +404,7 @@ describe('Response interceptor', () => {
         };
 
         const onRetry = jest.fn((requestConfig: InternalAxiosRequestConfig) => requestConfig);
-        createAuthRefreshInterceptor(instance, () => Promise.resolve(), { onRetry, deduplicateRefresh: false });
+        createAuthRefresh(instance, () => Promise.resolve(), { onRetry, deduplicateRefresh: false });
 
         const requests = [
             instance.get('http://example.com/1'),
@@ -421,11 +421,11 @@ describe('Response interceptor', () => {
 
 describe('Creates the overall interceptor correctly', () => {
     it('throws error when no function provided', () => {
-        expect(() => createAuthRefreshInterceptor(axios, null)).toThrow();
+        expect(() => createAuthRefresh(axios, null)).toThrow();
     });
 
     it('returns interceptor id', () => {
-        const id = createAuthRefreshInterceptor(axios, () => Promise.resolve());
+        const id = createAuthRefresh(axios, () => Promise.resolve());
         expect(typeof id).toBe('number');
         expect(id).toBeGreaterThan(-1);
     });
@@ -448,7 +448,7 @@ describe('Creates the overall interceptor correctly', () => {
                     },
                 );
             };
-            const id = createAuthRefreshInterceptor(instance, () => Promise.resolve());
+            const id = createAuthRefresh(instance, () => Promise.resolve());
             const id2 = instance.interceptors.response.use(
                 (req) => req,
                 (error) => Promise.reject(error),

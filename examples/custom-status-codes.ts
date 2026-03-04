@@ -6,8 +6,8 @@
  * (b) shouldRefresh callback — inspects the error body to decide
  */
 
-import axios from 'axios';
-import createAuthRefreshInterceptor from '../src/index';
+import axios, { AxiosError } from 'axios';
+import { createAuthRefresh } from '../src/index';
 import { createMockAdapter, MockState } from './_helpers/mock-adapter';
 import { assertEqual } from './_helpers/assert';
 
@@ -21,7 +21,7 @@ async function testStatusCodes() {
         headers: { Authorization: 'Bearer token-v1' },
     });
 
-    createAuthRefreshInterceptor(
+    createAuthRefresh(
         instance,
         async (failedRequest) => {
             state.refreshCount++;
@@ -46,7 +46,7 @@ async function testShouldRefresh() {
         headers: { Authorization: 'Bearer token-v1' },
     });
 
-    createAuthRefreshInterceptor(
+    createAuthRefresh(
         instance,
         async (failedRequest) => {
             state.refreshCount++;
@@ -54,7 +54,8 @@ async function testShouldRefresh() {
             failedRequest.response.config.headers['Authorization'] = `Bearer ${state.validToken}`;
         },
         {
-            shouldRefresh: (error) => error?.response?.data?.message === 'Invalid token',
+            shouldRefresh: (error: AxiosError<{ message: string }>) =>
+                error?.response?.data?.message === 'Invalid token',
         },
     );
 
